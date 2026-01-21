@@ -1,0 +1,114 @@
+.sec {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  div:first-child {
+    background-image: url("../../assets/introduction-image.jpg");
+    width: 100%;
+    height: 250px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+  }
+
+  div:last-child {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 75%;
+    z-index: 10;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px,
+      rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+
+    img {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+    }
+  }
+}
+
+main {
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 100px;
+
+  .section1 {
+    margin-bottom: 1.4rem;
+
+    #shopNaw {
+      display: block;
+      font-size: 1.8rem;
+      margin-bottom: 1.4rem;
+      text-align: center;
+    }
+
+    div {
+      display: flex;
+      justify-content: center;
+      gap: 0.7rem;
+
+      #whatsappIcon {
+        font-size: 1.35rem;
+        cursor: pointer;
+      }
+
+      #instagramIcon {
+        font-size: 1.35rem;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .section2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    div {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 20px;
+      background-color: #fff;
+      min-width: 480px;
+      padding: 18px 20px;
+      border-radius: 3rem;
+      cursor: pointer;
+      box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+      }
+
+      span {
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  .section3 {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 1.5rem;
+
+    span {
+      font-size: 1rem;
+    }
+  }
+}
