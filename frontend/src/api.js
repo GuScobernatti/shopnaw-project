@@ -1,4 +1,4 @@
-export const API_BASE = "http://localhost:3333";
+export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3333";
 
 const getCsrfToken = async () => {
   const res = await fetch(`${API_BASE}/csrf-token`, {
