@@ -1,14 +1,7 @@
-const nodemailer = require("nodemailer");
+//const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.resend.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: "resend",
-    pass: process.env.EMAIL_PASS2,
-  },
-});
+const resend = new Resend(process.env.EMAIL_PASS2);
 
 /*  const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -25,4 +18,4 @@ const transporter = nodemailer.createTransport({
   connectionTimeout: 10000,
 }); */
 
-module.exports = transporter;
+module.exports = resend;

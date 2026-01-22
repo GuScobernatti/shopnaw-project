@@ -46,7 +46,29 @@ async function sendStatusEmail(order, newStatus, trackingCode) {
         return;
     }
 
-    const mailOptions = {
+    try {
+      await resend.emails.send({
+        from: "Shopnaw <onboarding@resend.dev>", // <nao-responda@shopnaw.com>
+        to: [email],
+        subject: subject,
+        html: `
+        <div>
+           <h2>${subject}</h2>
+           <p>${text}</p>
+           <hr/>
+           <p><strong>Resumo do Pedido:</strong></p>
+                    <p>Total: R$ ${Number(order.total_amount).toFixed(2)}</p>
+                    <br/>
+                    <a href="${process.env.CORS_ORIGIN}/account/orders">
+                    Ver Meus Pedidos</a>
+           </div>
+      `,
+      });
+    } catch (err) {
+      console.error("Erro na API Resend:", err);
+    }
+
+    /* const mailOptions = {
       from: '"Shopnaw Loja" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
       to: email,
       subject: subject,
@@ -63,7 +85,7 @@ async function sendStatusEmail(order, newStatus, trackingCode) {
             `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions); */
     console.log(`📧 Email de status '${newStatus}' enviado para ${email}`);
   } catch (err) {
     console.error("Erro ao enviar email de status:", err);

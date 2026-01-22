@@ -38,24 +38,33 @@ class LoginRepository {
       client.release();
 
       const verifyLink = `${process.env.CORS_ORIGIN}/account/verify-email?token=${verificationToken}`;
-      const mailOptions = {
-        from: '"Shopnaw Loja" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
-        to: email,
-        subject: "Confirme seu email - Shopnaw",
-        html: `
-          <h3>Bem-vindo à Shopnaw, ${name}!</h3>
-          <p>Para ativar sua conta e fazer compras, clique no link abaixo:</p>
-          <a href="${verifyLink}" target="_blank" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Confirmar Email</a>
-        `,
-      };
 
       try {
-        await transporter.sendMail(mailOptions);
+        await resend.emails.send({
+          from: "Shopnaw <onboarding@resend.dev>", // <nao-responda@shopnaw.com>
+          to: [email],
+          subject: "Confirme seu email - Shopnaw",
+          html: `
+            <h3>Bem-vindo à Shopnaw, ${name}!</h3>
+            <p>Para ativar sua conta, clique no link abaixo:</p>
+            <a href="${verifyLink}">Confirmar Email</a>
+          `,
+        });
+
+        /* const mailOptions = {
+          from: '"Shopnaw Loja" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
+          to: email,
+          subject: "Confirme seu email - Shopnaw",
+          html: `
+            <h3>Bem-vindo à Shopnaw, ${name}!</h3>
+            <p>Para ativar sua conta e fazer compras, clique no link abaixo:</p>
+            <a href="${verifyLink}" target="_blank" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Confirmar Email</a>
+          `,
+        }; 
+        
+         await transporter.sendMail(mailOptions);*/
       } catch (emailError) {
-        console.error(
-          "Erro ao enviar email, mas usuário foi salvo:",
-          emailError,
-        );
+        console.error("Erro no envio do Resend:", emailError);
       }
 
       return res.status(201).json({
@@ -66,12 +75,10 @@ class LoginRepository {
       try {
         client.release();
       } catch (e) {}
+      return res
+        .status(500)
+        .json({ error: err.message, message: "Erro ao criar usuário." });
     }
-
-    return res.status(500).json({
-      error: err.message,
-      message: "Erro ao criar usuário.",
-    });
   }
 
   async verifyEmail(req, res) {
@@ -437,7 +444,26 @@ class LoginRepository {
 
       const resetLink = `${process.env.CORS_ORIGIN}/account/reset-password?token=${token}`;
 
-      const mailOptions = {
+      try {
+        await resend.emails.send({
+          from: '"Shopnaw Suporte" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
+          to: [email],
+          subject: "Recuperação de Senha - Shopnaw",
+          html: `
+          <h3>Olá, ${user.name}</h3>
+          <p>Recebemos uma solicitação para redefinir sua senha.</p>
+          <p>Clique no link abaixo para criar uma nova senha:</p>
+          <a href="${resetLink}" target="_blank">Redefinir Minha Senha</a>
+          <p>Este link expira em 1 hora.</p>
+          <p>Se você não solicitou isso, ignore este e-mail.</p>
+        `,
+        });
+        console.log(`📧 Email enviado via API para ${email}`);
+      } catch (err) {
+        console.error("Erro na API Resend:", err);
+      }
+
+      /* const mailOptions = {
         from: '"Shopnaw Suporte" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
         to: email,
         subject: "Recuperação de Senha - Shopnaw",
@@ -451,7 +477,7 @@ class LoginRepository {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
+      await transporter.sendMail(mailOptions); */
 
       return res.json({ message: "E-mail de recuperação enviado!" });
     } catch (err) {
