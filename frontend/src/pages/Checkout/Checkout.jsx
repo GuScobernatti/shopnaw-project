@@ -26,7 +26,7 @@ function Checkout() {
   const zipCodeFromCart = location.state?.zipCode || "";
 
   useEffect(() => {
-    initMercadoPago("TEST-1a248064-67f4-4506-92f5-ee6ae03ec9d2", {
+    initMercadoPago(import.meta.env.VITE_MP_PUBLIC_KEY, {
       locale: "pt-BR",
     });
   }, []);
