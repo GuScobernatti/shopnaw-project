@@ -14,18 +14,20 @@ class LoginRepository {
     const client = await pool.connect();
 
     try {
+      await client.query("BEGIN");
+
       // 1. Verificar duplicidade de email antes de tudo
       const { rowCount } = await client.query(
         "SELECT 1 FROM users WHERE email = $1",
-        [email]
+        [email],
       );
       if (rowCount > 0) {
+        await client.query("ROLLBACK");
         return res.status(409).json({ message: "Email já cadastrado!" });
       }
 
       // 2. Gerar hash de forma assíncrona
       const hash = await bcrypt.hash(password, SALT_ROUNDS);
-
       const verificationToken = crypto.randomBytes(32).toString("hex");
 
       // 3. Inserir usuário
@@ -33,7 +35,7 @@ class LoginRepository {
         `INSERT INTO users 
          (user_id, name, phone, email, password, verification_token, is_verified) 
          VALUES ($1, $2, $3, $4, $5, $6, false)`,
-        [v4(), name, phone, email, hash, verificationToken]
+        [v4(), name, phone, email, hash, verificationToken],
       );
 
       const verifyLink = `${process.env.CORS_ORIGIN}/account/verify-email?token=${verificationToken}`;
@@ -45,21 +47,25 @@ class LoginRepository {
           <h3>Bem-vindo à Shopnaw, ${name}!</h3>
           <p>Para ativar sua conta e fazer compras, clique no link abaixo:</p>
           <a href="${verifyLink}" target="_blank" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Confirmar Email</a>
-          <p>Ou cole este link no navegador: ${verifyLink}</p>
         `,
       };
 
       await transporter.sendMail(mailOptions);
+      await client.query("COMMIT");
 
       return res.status(201).json({
         message:
           "Cadastro realizado! Verifique seu email para ativar a conta antes de logar.",
       });
     } catch (err) {
+      await client.query("ROLLBACK");
       console.error("signUp error:", err);
       return res
         .status(500)
-        .json({ error: err.message, message: "Erro ao criar o usuário" });
+        .json({
+          error: err.message,
+          message: "Erro ao criar usuário (Falha no envio de e-mail ou banco).",
+        });
     } finally {
       client.release();
     }
@@ -71,7 +77,7 @@ class LoginRepository {
     try {
       const result = await client.query(
         "SELECT user_id FROM users WHERE verification_token = $1",
-        [token]
+        [token],
       );
 
       if (result.rowCount === 0) {
@@ -84,7 +90,7 @@ class LoginRepository {
 
       await client.query(
         "UPDATE users SET is_verified = true, verification_token = NULL WHERE user_id = $1",
-        [userId]
+        [userId],
       );
 
       return res.json({ message: "Email verificado com sucesso!" });
@@ -104,7 +110,7 @@ class LoginRepository {
       // 1. Buscar usuário
       const result = await client.query(
         "SELECT user_id, name, password, role, is_verified FROM users WHERE email = $1",
-        [email]
+        [email],
       );
       if (result.rowCount === 0) {
         return res.status(401).json({ message: "Email ou senha inválidos!" });
@@ -137,24 +143,25 @@ class LoginRepository {
         process.env.JWT_SECRET,
         {
           expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-        }
+        },
       );
       const refreshToken = jwt.sign(
         { userId: user_id, role: role },
         process.env.JWT_SECRET_REFRESH,
         {
           expiresIn: `${process.env.REFRESH_TOKEN_EXPIRY_DAYS}d`,
-        }
+        },
       );
 
       // 4. Aqui você pode salvar o refreshToken em cookie ou DB
 
       const expires_at = new Date(
-        Date.now() + process.env.REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000
+        Date.now() +
+          process.env.REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
       );
       await client.query(
         "INSERT INTO refresh_tokens (token_id, user_id, token, expires_at) VALUES ($1,$2,$3,$4)",
-        [v4(), user_id, refreshToken, expires_at]
+        [v4(), user_id, refreshToken, expires_at],
       );
 
       const isProd = process.env.NODE_ENV === "production";
@@ -173,7 +180,7 @@ class LoginRepository {
         const cart = await CartRepository.findOrCreateCart({ userId: user_id });
         const finalCart = await CartRepository.mergeCart(
           cart.cart_id,
-          req.body.localCart
+          req.body.localCart,
         );
         cartItems = finalCart.items;
       } else {
@@ -237,7 +244,7 @@ class LoginRepository {
         (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.user_id) as purchases
         FROM users u ORDER BY u.created_at DESC LIMIT $1 OFFSET $2     
       `,
-        [limit, offset]
+        [limit, offset],
       );
 
       return res.status(200).json({
@@ -261,7 +268,7 @@ class LoginRepository {
     // Primeiro achamos o carrinho
     const cartRes = await client.query(
       "SELECT cart_id FROM carts WHERE user_id = $1",
-      [userId]
+      [userId],
     );
     if (cartRes.rows.length > 0) {
       const cartId = cartRes.rows[0].cart_id;
@@ -297,7 +304,7 @@ class LoginRepository {
 
       const result = await client.query(
         "DELETE FROM users WHERE user_id = $1 RETURNING *",
-        [userId]
+        [userId],
       );
 
       if (result.rowCount === 0) {
@@ -327,7 +334,7 @@ class LoginRepository {
 
       const result = await client.query(
         "SELECT * FROM refresh_tokens WHERE token = $1 AND user_id = $2",
-        [token, payload.userId]
+        [token, payload.userId],
       );
 
       if (result.rowCount === 0) {
@@ -336,13 +343,13 @@ class LoginRepository {
 
       const userRes = await client.query(
         "SELECT user_id, email, name, role FROM users WHERE user_id = $1",
-        [payload.userId]
+        [payload.userId],
       );
 
       const newAccessToken = jwt.sign(
         { userId: payload.userId, role: userRes.rows[0].role },
         process.env.JWT_SECRET,
-        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY },
       );
 
       const user = userRes.rows[0]
@@ -375,7 +382,7 @@ class LoginRepository {
 
       const result = await client.query(
         "DELETE FROM users WHERE user_id = $1 RETURNING *",
-        [userId]
+        [userId],
       );
 
       if (result.rowCount === 0) {
@@ -404,7 +411,7 @@ class LoginRepository {
     try {
       const userRes = await client.query(
         "SELECT user_id, name FROM users WHERE email = $1",
-        [email]
+        [email],
       );
 
       if (userRes.rowCount === 0) {
@@ -422,7 +429,7 @@ class LoginRepository {
 
       await client.query(
         "INSERT INTO password_resets (id, user_id, token, expires_at) VALUES ($1, $2, $3, $4)",
-        [v4(), user.user_id, token, expiresAt]
+        [v4(), user.user_id, token, expiresAt],
       );
 
       const resetLink = `${process.env.CORS_ORIGIN}/account/reset-password?token=${token}`;
@@ -461,7 +468,7 @@ class LoginRepository {
     try {
       const tokenRes = await client.query(
         "SELECT user_id, expires_at FROM password_resets WHERE token = $1",
-        [token]
+        [token],
       );
 
       if (tokenRes.rowCount === 0) {
