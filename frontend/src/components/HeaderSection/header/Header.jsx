@@ -161,7 +161,7 @@ function Header() {
           )}
 
           {user && user.role === "admin" && (
-            <AdminButton onClick={() => window.open("/dashboard", "_blank")}>
+            <AdminButton onClick={() => navigate("/dashboard")}>
               Painel Adm
             </AdminButton>
           )}
