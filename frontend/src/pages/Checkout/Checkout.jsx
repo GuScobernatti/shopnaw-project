@@ -30,7 +30,8 @@ function Checkout() {
   useEffect(() => {
     initMercadoPago(import.meta.env.VITE_MP_PUBLIC_KEY, {
       locale: "pt-BR",
-    }).then(() => setLoadingMP(false));
+    });
+    setLoadingMP(false);
   }, []);
 
   const totalAmount = useMemo(() => {

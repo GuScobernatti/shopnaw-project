@@ -123,7 +123,6 @@ function Form() {
       console.error("Erro ao carregar dados do formulário:", err);
       toast.error("Erro ao carregar dados. Tente novamente.");
     } finally {
-      // Garante que o loading vai sumir
       setLoading(false);
     }
   }, [productId, reset, setValue]);
@@ -185,16 +184,15 @@ function Form() {
       });
 
       if (!res.ok) throw new Error("Erro na requisição");
-      toast.success(productId ? "Produto atualizado!" : "Produto criado!");
-      await updateProductList();
-      setProductId("");
-      navigate("/dashboard/products/addedProducts");
-
       if (productId) {
         toast.info("Produto atualizado com sucesso!");
       } else {
         toast.success("Produto adicionado com sucesso!");
       }
+
+      await updateProductList();
+      setProductId("");
+      navigate("/dashboard/products/addedProducts");
     } catch (err) {
       console.error(err);
       toast.error("Erro ao salvar produto.");
