@@ -14,15 +14,12 @@ class LoginRepository {
     const client = await pool.connect();
 
     try {
-      await client.query("BEGIN");
-
       // 1. Verificar duplicidade de email antes de tudo
       const { rowCount } = await client.query(
         "SELECT 1 FROM users WHERE email = $1",
         [email],
       );
       if (rowCount > 0) {
-        await client.query("ROLLBACK");
         return res.status(409).json({ message: "Email já cadastrado!" });
       }
 
@@ -38,6 +35,8 @@ class LoginRepository {
         [v4(), name, phone, email, hash, verificationToken],
       );
 
+      client.release();
+
       const verifyLink = `${process.env.CORS_ORIGIN}/account/verify-email?token=${verificationToken}`;
       const mailOptions = {
         from: '"Shopnaw Loja" <nao-responda@shopnaw.com>',
@@ -50,25 +49,29 @@ class LoginRepository {
         `,
       };
 
-      await transporter.sendMail(mailOptions);
-      await client.query("COMMIT");
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (emailError) {
+        console.error(
+          "Erro ao enviar email, mas usuário foi salvo:",
+          emailError,
+        );
+      }
 
       return res.status(201).json({
-        message:
-          "Cadastro realizado! Verifique seu email para ativar a conta antes de logar.",
+        message: "Cadastro realizado! Verifique seu email.",
       });
     } catch (err) {
-      await client.query("ROLLBACK");
       console.error("signUp error:", err);
-      return res
-        .status(500)
-        .json({
-          error: err.message,
-          message: "Erro ao criar usuário (Falha no envio de e-mail ou banco).",
-        });
-    } finally {
-      client.release();
+      try {
+        client.release();
+      } catch (e) {}
     }
+
+    return res.status(500).json({
+      error: err.message,
+      message: "Erro ao criar usuário.",
+    });
   }
 
   async verifyEmail(req, res) {
