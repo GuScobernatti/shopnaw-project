@@ -25,7 +25,7 @@ app.use(
     contentSecurityPolicy:
       process.env.NODE_ENV === "production" ? undefined : false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
-  })
+  }),
 );
 
 // Liberação de origem controlada
@@ -35,7 +35,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "X-CSRF-Token", "Authorization", "Accept"],
     credentials: true,
-  })
+  }),
 );
 
 app.options("*", (req, res) => res.sendStatus(200));
@@ -56,7 +56,7 @@ const csrfProtection = csrf({
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "Strict",
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     signed: false,
   },
 });
