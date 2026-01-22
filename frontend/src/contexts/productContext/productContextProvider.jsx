@@ -130,7 +130,11 @@ const ProductProvider = ({ children }) => {
                 if (!data || !data.product_id) return null;
 
                 const maxStock = Number(data.quantity);
-                if (item.stock !== maxStock) {
+                const currentQty = item.quantity;
+
+                const validQty = Math.min(currentQty, maxStock);
+
+                if (validQty !== currentQty || item.stock !== maxStock) {
                   hasChanges = true;
                 }
 
@@ -140,6 +144,7 @@ const ProductProvider = ({ children }) => {
                   price: data.price,
                   name: data.name,
                   image: data.image,
+                  quantity: validQty,
                 };
               }
               return item;
