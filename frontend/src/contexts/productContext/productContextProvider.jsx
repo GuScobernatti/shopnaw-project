@@ -127,16 +127,10 @@ const ProductProvider = ({ children }) => {
               if (res.ok) {
                 const data = await res.json();
 
-                // Se produto não existe mais ou sem estoque
                 if (!data || !data.product_id) return null;
 
                 const maxStock = Number(data.quantity);
-                const currentQty = item.quantity;
-
-                // Se a quantidade no carrinho for maior que o estoque real, ajusta
-                const validQty = Math.min(currentQty, maxStock);
-
-                if (validQty !== currentQty || item.stock !== maxStock) {
+                if (item.stock !== maxStock) {
                   hasChanges = true;
                 }
 
@@ -146,10 +140,9 @@ const ProductProvider = ({ children }) => {
                   price: data.price,
                   name: data.name,
                   image: data.image,
-                  quantity: validQty,
                 };
               }
-              return item; // Se der erro no fetch, mantem item como está pra não sumir
+              return item;
             } catch {
               return item;
             }
@@ -158,11 +151,7 @@ const ProductProvider = ({ children }) => {
 
         const validItems = updatedItems.filter((item) => item !== null);
 
-        // Se houve mudança de estoque ou itens removidos
         if (hasChanges || validItems.length !== currentCart.length) {
-          if (validItems.length < currentCart.length) {
-            toast.warning("Alguns itens não estão mais disponíveis.");
-          }
           setCart(validItems);
           if (user) debouncedReplace(validItems);
         }
