@@ -321,6 +321,11 @@ function MyOrders() {
     return [];
   };
 
+  const getImageUrl = (path) => {
+    if (!path) return "";
+    return path.startsWith("http") ? path : `${API_BASE}${path}`;
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -500,7 +505,7 @@ function MyOrders() {
                       href={
                         getTrackingLink(
                           selectedOrder.shipping_method,
-                          selectedOrder.tracking_code
+                          selectedOrder.tracking_code,
                         ).url
                       }
                       target="_blank"
@@ -516,7 +521,7 @@ function MyOrders() {
                       {
                         getTrackingLink(
                           selectedOrder.shipping_method,
-                          selectedOrder.tracking_code
+                          selectedOrder.tracking_code,
                         ).label
                       }
                     </a>
@@ -559,7 +564,7 @@ function MyOrders() {
               >
                 {item.image && (
                   <img
-                    src={`${API_BASE}${item.image}`}
+                    src={getImageUrl(item.image)}
                     alt={item.name}
                     style={{
                       width: "50px",
@@ -606,7 +611,7 @@ function MyOrders() {
               <span>
                 {Number(selectedOrder.shipping_cost || 0).toLocaleString(
                   "pt-BR",
-                  { style: "currency", currency: "BRL" }
+                  { style: "currency", currency: "BRL" },
                 )}
               </span>
             </div>
