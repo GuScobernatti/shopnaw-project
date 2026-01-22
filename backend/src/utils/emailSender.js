@@ -1,5 +1,6 @@
-const transporter = require("../config/mailer");
+//const transporter = require("../config/mailer");
 const pool = require("../pgPool");
+const resend = require("../config/mailer");
 
 async function sendStatusEmail(order, newStatus, trackingCode) {
   if (!order || !order.user_id) return;

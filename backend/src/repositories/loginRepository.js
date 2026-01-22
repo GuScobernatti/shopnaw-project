@@ -3,8 +3,9 @@ const { v4 } = require("uuid");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const transporter = require("../config/mailer");
+//const transporter = require("../config/mailer");
 const CartRepository = require("./cartRepository");
+const resend = require("../config/mailer");
 
 const SALT_ROUNDS = 10;
 
