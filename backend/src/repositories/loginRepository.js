@@ -39,7 +39,7 @@ class LoginRepository {
 
       const verifyLink = `${process.env.CORS_ORIGIN}/account/verify-email?token=${verificationToken}`;
       const mailOptions = {
-        from: '"Shopnaw Loja" <nao-responda@shopnaw.com>',
+        from: '"Shopnaw Loja" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
         to: email,
         subject: "Confirme seu email - Shopnaw",
         html: `
@@ -438,7 +438,7 @@ class LoginRepository {
       const resetLink = `${process.env.CORS_ORIGIN}/account/reset-password?token=${token}`;
 
       const mailOptions = {
-        from: '"Shopnaw Suporte" <nao-responda@shopnaw.com>',
+        from: '"Shopnaw Suporte" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
         to: email,
         subject: "Recuperação de Senha - Shopnaw",
         html: `

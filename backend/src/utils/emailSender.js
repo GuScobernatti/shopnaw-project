@@ -8,7 +8,7 @@ async function sendStatusEmail(order, newStatus, trackingCode) {
     const client = await pool.connect();
     const userRes = await client.query(
       "SELECT email, name FROM users WHERE user_id = $1",
-      [order.user_id]
+      [order.user_id],
     );
     client.release();
 
@@ -47,7 +47,7 @@ async function sendStatusEmail(order, newStatus, trackingCode) {
     }
 
     const mailOptions = {
-      from: '"Shopnaw Loja" <nao-responda@shopnaw.com>',
+      from: '"Shopnaw Loja" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
       to: email,
       subject: subject,
       html: `
