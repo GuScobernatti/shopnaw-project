@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   ContainerForm,
@@ -12,6 +12,7 @@ import productContext from "../../../../contexts/productContext/createProductCon
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import authContext from "../../../../contexts/loginContext/createAuthContext";
+import Loading from "../../../Loading/Loading";
 
 function Form() {
   const { authFetch } = useContext(authContext);
@@ -20,7 +21,7 @@ function Form() {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [selectImage, setSelectImage] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [sizes, setSizes] = useState([]);
 
@@ -37,23 +38,6 @@ function Form() {
     "length",
   ]);
 
-  const fetchOptions = async () => {
-    const [catRes, sizeRes] = await Promise.all([
-      fetchDataForm("/options?type=category", "GET"),
-      fetchDataForm("/options?type=size", "GET"),
-    ]);
-
-    const categoriesData = await catRes.json();
-    const sizesData = await sizeRes.json();
-
-    setCategories(categoriesData);
-    setSizes(sizesData);
-  };
-
-  useEffect(() => {
-    fetchOptions();
-  }, []);
-
   const {
     updateProductList,
     value,
@@ -63,14 +47,26 @@ function Form() {
     dataForm,
   } = useContext(productContext);
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      if (!productId || !categories.length || !sizes.length) return;
+  const loadInitialData = useCallback(async () => {
+    setLoading(true);
+    try {
+      // 1. Carregar Opções (Categorias e Tamanhos)
+      const [catRes, sizeRes] = await Promise.all([
+        fetchDataForm("/options?type=category", "GET"),
+        fetchDataForm("/options?type=size", "GET"),
+      ]);
 
-      try {
+      if (catRes.ok) setCategories(await catRes.json());
+      if (sizeRes.ok) setSizes(await sizeRes.json());
+
+      // 2. Se tiver ID, carregar dados do produto para edição
+      if (productId) {
         const response = await fetchDataForm(`/dashboard/${productId}`, "GET");
+        if (!response.ok) throw new Error("Falha ao carregar produto");
+
         const found = await response.json();
 
+        // Popula o formulário
         reset({
           name: found.name,
           size: found.size,
@@ -83,6 +79,7 @@ function Form() {
           length: found.length,
         });
 
+        // Configura estados auxiliares
         setValue(Number(found.quantity) || 0);
 
         if (found.image) {
@@ -92,6 +89,7 @@ function Form() {
           setImagePreview(imgUrl);
         }
 
+        // Salva estado original para comparação de edição
         setOriginalProduct({
           name: found.name,
           size: found.size,
@@ -104,13 +102,35 @@ function Form() {
           height: found.height,
           length: found.length,
         });
-      } catch (err) {
-        console.error("Erro ao buscar produto individual:", err);
+      } else {
+        // Se for NOVO produto, limpa tudo
+        reset({
+          name: "",
+          size: "",
+          category: "",
+          price: "",
+          description: "",
+          weight: "",
+          width: "",
+          height: "",
+          length: "",
+        });
+        setValue(0);
+        setImagePreview(null);
+        setOriginalProduct(null);
       }
-    };
+    } catch (err) {
+      console.error("Erro ao carregar dados do formulário:", err);
+      toast.error("Erro ao carregar dados. Tente novamente.");
+    } finally {
+      // Garante que o loading vai sumir
+      setLoading(false);
+    }
+  }, [productId, reset, setValue]);
 
-    fetchProduct();
-  }, [productId, categories, sizes, reset, setValue]);
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
 
   const isEdited =
     originalProduct &&
@@ -127,6 +147,12 @@ function Form() {
       imageFile !== null);
 
   const onSubmit = async (data) => {
+    if (!productId && !imageFile) {
+      return toast.warning("Por favor, selecione uma imagem para o produto.");
+    }
+
+    setLoading(true);
+
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("size", data.size);
@@ -159,26 +185,24 @@ function Form() {
       });
 
       if (!res.ok) throw new Error("Erro na requisição");
+      toast.success(productId ? "Produto atualizado!" : "Produto criado!");
+      await updateProductList();
+      setProductId("");
+      navigate("/dashboard/products/addedProducts");
 
       if (productId) {
         toast.info("Produto atualizado com sucesso!");
       } else {
         toast.success("Produto adicionado com sucesso!");
       }
-
-      updateProductList();
-      reset();
-      setImagePreview(null);
-      setImageFile(null);
-      setValue(0);
-      setProductId("");
-      navigate("/dashboard/products/addedProducts");
-      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error(err);
       toast.error("Erro ao salvar produto.");
+      setLoading(false);
     }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <ContainerForm>

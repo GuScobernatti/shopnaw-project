@@ -2,7 +2,9 @@ import styled from "styled-components";
 
 export const SectionDashboard = styled.section`
   display: flex;
-  min-height: 100vh;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
 
   @media (max-width: 980px) {
     flex-direction: column;
@@ -11,11 +13,14 @@ export const SectionDashboard = styled.section`
 
 export const ContentWrapper = styled.main`
   flex: 1;
-  min-height: 100vh;
+  padding: 20px;
   background-color: #f9f9f9;
+  overflow-y: auto;
+  height: 100%;
 
   @media (max-width: 980px) {
     width: 100%;
+    padding: 10px;
   }
 `;
 
@@ -38,6 +43,14 @@ export const ContainerHamburger = styled.div`
   }
 `;
 
+export const DashboardContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+`;
+
 export const HeaderComponent = styled.header`
   width: 100%;
   height: 100px;
@@ -50,8 +63,8 @@ export const HeaderComponent = styled.header`
   user-select: none;
   background-color: #fff;
   z-index: 1100;
-  position: fixed;
-  top: 0;
+  flex-shrink: 0;
+  z-index: 100;
 
   .logoContent {
     display: flex;

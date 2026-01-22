@@ -2,6 +2,7 @@ import LogoShopnaw from "../../assets/novalogo.jpeg";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import MenuAside from "../../components/DashboardSection/MenuAside/MenuAside";
 import {
+  DashboardContainer,
   ContainerHamburger,
   ContentWrapper,
   SectionDashboard,
@@ -25,7 +26,7 @@ function Dashboard() {
   }, [location.pathname]);
 
   return (
-    <>
+    <DashboardContainer>
       <HeaderComponent>
         <div className="logoContent" onClick={() => navigate("/dashboard")}>
           <img src={LogoShopnaw} alt="Logo-Shopnaw" />
@@ -43,7 +44,7 @@ function Dashboard() {
           <Outlet />
         </ContentWrapper>
       </SectionDashboard>
-    </>
+    </DashboardContainer>
   );
 }
 
