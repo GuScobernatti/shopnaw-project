@@ -179,8 +179,8 @@ class LoginRepository {
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: isProd, // true em produção (HTTPS), false em dev (HTTP)
-        sameSite: isProd ? "Strict" : "Lax",
+        secure: isProd ? true : false,
+        sameSite: isProd ? "None" : "Lax",
         path: "/",
         maxAge:
           Number(process.env.REFRESH_TOKEN_EXPIRY_DAYS) * 24 * 60 * 60 * 1000,
