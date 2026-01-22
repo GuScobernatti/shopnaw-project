@@ -50,12 +50,9 @@ const ProductProvider = ({ children }) => {
     cartRef.current = cart;
   }, [cart]);
 
-  // Salva no LocalStorage sempre que o cart mudar
   useEffect(() => {
-    try {
-      localStorage.setItem("cart", JSON.stringify(cart || []));
-    } catch (err) {
-      console.error("Error saving cart to localStorage", err);
+    if (Array.isArray(cart)) {
+      localStorage.setItem("cart", JSON.stringify(cart));
     }
   }, [cart]);
 
@@ -131,7 +128,6 @@ const ProductProvider = ({ children }) => {
 
                 const maxStock = Number(data.quantity);
                 const currentQty = item.quantity;
-
                 const validQty = Math.min(currentQty, maxStock);
 
                 if (validQty !== currentQty || item.stock !== maxStock) {
@@ -182,25 +178,16 @@ const ProductProvider = ({ children }) => {
       const localRaw = localStorage.getItem("cart");
       const localItems = localRaw ? JSON.parse(localRaw) : [];
 
-      // Lógica de Merge: Se o local tiver itens e for diferente do servidor, o local ganha (assumimos que é o mais recente)
-      // Se o local estiver vazio, usamos o do servidor.
       if (localItems.length > 0) {
-        // Opcional: Você pode comparar timestamps se quiser ser mais preciso,
-        // mas assumir que o Local é a "intenção mais recente" do usuário costuma funcionar bem.
         setCart(localItems);
-        replaceOnServer(localItems); // Atualiza o servidor com o que está no local
-      } else if (serverItems.length > 0) {
+        replaceOnServer(localItems);
+      } else {
         setCart(serverItems);
-        localStorage.setItem("cart", JSON.stringify(serverItems));
       }
-
-      // Valida estoque do que foi decidido
-      const finalItems = localItems.length > 0 ? localItems : serverItems;
-      if (finalItems.length > 0) refreshCartStock(finalItems);
     } catch (err) {
       console.error("fetchCart error:", err);
     }
-  }, [doFetch, user, replaceOnServer, refreshCartStock]);
+  }, [doFetch, user, replaceOnServer]);
 
   useEffect(() => {
     if (!initialized) return;
@@ -208,13 +195,30 @@ const ProductProvider = ({ children }) => {
     if (user) {
       fetchCart();
     } else {
-      // Se não tem user, confia 100% no local e só valida estoque
       const local = JSON.parse(localStorage.getItem("cart") || "[]");
-      if (local.length > 0) refreshCartStock(local);
+      setCart(local);
     }
+
+    const onCartMerged = (e) => {
+      const mergedItems = (e && e.detail) || [];
+      setCart(mergedItems);
+      localStorage.setItem("cart", JSON.stringify(mergedItems));
+    };
+
+    const onLogout = () => {
+      setCart([]);
+      localStorage.removeItem("cart");
+    };
+
+    window.addEventListener("shop:cartMerged", onCartMerged);
+    window.addEventListener("shop:logout", onLogout);
+
+    return () => {
+      window.removeEventListener("shop:cartMerged", onCartMerged);
+      window.removeEventListener("shop:logout", onLogout);
+    };
   }, [user, initialized, fetchCart, refreshCartStock]);
 
-  // ... (FetchOld e UpdateProductList mantêm igual) ...
   const fetchOld = useCallback(
     async (page = 1) => {
       if (oldControllerRef.current) oldControllerRef.current.abort();
