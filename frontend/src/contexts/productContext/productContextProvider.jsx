@@ -10,8 +10,6 @@ const ProductProvider = ({ children }) => {
   const { user, authFetch, initialized, getCsrfToken } =
     useContext(authContext);
 
-  const stockRefreshed = useRef(false);
-
   const [dataForm, setDataForm] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -44,7 +42,7 @@ const ProductProvider = ({ children }) => {
       if (user && authFetch) return authFetch(url, options);
       return fetch(url, { ...options, credentials: "include" });
     },
-    [user, authFetch]
+    [user, authFetch],
   );
 
   const cartRef = useRef(cart);
@@ -52,8 +50,7 @@ const ProductProvider = ({ children }) => {
     cartRef.current = cart;
   }, [cart]);
 
-  //-----------------------------------
-
+  // Salva no LocalStorage sempre que o cart mudar
   useEffect(() => {
     try {
       localStorage.setItem("cart", JSON.stringify(cart || []));
@@ -63,19 +60,17 @@ const ProductProvider = ({ children }) => {
   }, [cart]);
 
   const syncingRef = useRef(false);
+
+  // Função para salvar no servidor
   const replaceOnServer = useCallback(
     async (items) => {
-      if (syncingRef.current) {
-        return;
-      }
+      // Se não tiver user, só salva no localStorage (já feito pelo useEffect acima)
+      if (!user || !authFetch) return;
+
+      if (syncingRef.current) return;
       syncingRef.current = true;
 
       try {
-        if (!user || !authFetch) {
-          localStorage.setItem("cart", JSON.stringify(items || []));
-          return;
-        }
-
         let csrf = null;
         try {
           if (typeof getCsrfToken === "function") {
@@ -100,146 +95,118 @@ const ProductProvider = ({ children }) => {
         });
 
         if (!res.ok) {
-          localStorage.setItem("cart", JSON.stringify(items || []));
-          return;
-        }
-
-        let server = null;
-        try {
-          server = await res.json();
-        } catch (err) {
-          console.warn("replaceOnServer -> response not JSON:", err);
-        }
-
-        if (server?.items && Array.isArray(server.items)) {
-          if (items.length <= server.items.length) {
-            if (
-              JSON.stringify(server.items) !== JSON.stringify(cartRef.current)
-            ) {
-              setCart(server.items);
-              cartRef.current = server.items;
-              localStorage.setItem("cart", JSON.stringify(server.items));
-            }
-          }
+          console.error("Erro ao salvar carrinho no servidor");
         }
       } catch (err) {
         console.error("replaceOnServer error:", err);
-        localStorage.setItem("cart", JSON.stringify(items || []));
       } finally {
         syncingRef.current = false;
       }
     },
-    [authFetch, getCsrfToken, user]
+    [authFetch, getCsrfToken, user],
   );
 
+  // Debounce para não spammar o servidor
   const debouncedReplace = useRef(
-    debounce((items) => replaceOnServer(items), 300)
+    debounce((items) => replaceOnServer(items), 500),
   ).current;
 
+  // Função para validar estoque (chamada ao iniciar)
   const refreshCartStock = useCallback(
     async (currentCart) => {
       if (!currentCart || currentCart.length === 0) return;
 
-      const needsUpdate = currentCart.some((item) => item.stock === undefined);
-
-      if (needsUpdate || !user) {
-        try {
-          const updatedItems = await Promise.all(
-            currentCart.map(async (item) => {
-              try {
-                const res = await fetch(
-                  `${API_BASE}/dashboard/${item.product_id}`
-                );
-
-                if (res.ok) {
-                  const data = await res.json();
-
-                  if (!data || !data.product_id) return null;
-
-                  return {
-                    ...item,
-                    stock: Number(data.quantity),
-                    price: data.price,
-                    name: data.name,
-                    image: data.image,
-                    quantity: Math.min(item.quantity, Number(data.quantity)),
-                  };
-                }
-              } catch {
-                return null;
-              }
-            })
-          );
-
-          const validItems = updatedItems.filter((item) => item !== null);
-
-          if (JSON.stringify(validItems) !== JSON.stringify(currentCart)) {
-            if (validItems.length < currentCart.length) {
-              toast.warning(
-                "Alguns itens do seu carrinho não estão mais disponíveis e foram removidos."
+      try {
+        let hasChanges = false;
+        const updatedItems = await Promise.all(
+          currentCart.map(async (item) => {
+            try {
+              const res = await fetch(
+                `${API_BASE}/dashboard/${item.product_id}`,
               );
+              if (res.ok) {
+                const data = await res.json();
+
+                // Se produto não existe mais ou sem estoque
+                if (!data || !data.product_id) return null;
+
+                const maxStock = Number(data.quantity);
+                const currentQty = item.quantity;
+
+                // Se a quantidade no carrinho for maior que o estoque real, ajusta
+                const validQty = Math.min(currentQty, maxStock);
+
+                if (validQty !== currentQty || item.stock !== maxStock) {
+                  hasChanges = true;
+                }
+
+                return {
+                  ...item,
+                  stock: maxStock,
+                  price: data.price,
+                  name: data.name,
+                  image: data.image,
+                  quantity: validQty,
+                };
+              }
+              return item; // Se der erro no fetch, mantem item como está pra não sumir
+            } catch {
+              return item;
             }
+          }),
+        );
 
-            setCart(validItems);
+        const validItems = updatedItems.filter((item) => item !== null);
 
-            if (user) debouncedReplace(validItems);
+        // Se houve mudança de estoque ou itens removidos
+        if (hasChanges || validItems.length !== currentCart.length) {
+          if (validItems.length < currentCart.length) {
+            toast.warning("Alguns itens não estão mais disponíveis.");
           }
-        } catch (err) {
-          console.error("Erro refreshCartStock", err);
+          setCart(validItems);
+          if (user) debouncedReplace(validItems);
         }
+      } catch (err) {
+        console.error("Erro refreshCartStock", err);
       }
     },
-    [user, debouncedReplace]
+    [user, debouncedReplace],
   );
 
-  // Chama o refresh ao montar
-  useEffect(() => {
-    if (cart.length > 0 && !stockRefreshed.current) {
-      stockRefreshed.current = true;
-      refreshCartStock(cart);
-    }
-  }, [cart, refreshCartStock]);
-
+  // Ao iniciar a sessão, decide se usa o Local ou o Server
   const fetchCart = useCallback(async () => {
-    try {
-      const mergedAt = localStorage.getItem("cart_merged_at");
-      if (mergedAt) {
-        const diff = Date.now() - Number(mergedAt);
-        if (!Number.isNaN(diff) && diff < 3000) {
-          localStorage.removeItem("cart_merged_at");
-          return;
-        } else {
-          localStorage.removeItem("cart_merged_at");
-        }
-      }
-    } catch (err) {
-      console.warn("fetchCart -> localStorage read failed:", err);
-    }
-
     if (!user) return;
 
     try {
+      // 1. Busca versão do servidor
       const res = await doFetch(`${API_BASE}/cart`);
       if (!res.ok) throw new Error(`GET /cart ${res.status}`);
-
       const data = await res.json();
-      const items = Array.isArray(data.items) ? data.items : [];
+      const serverItems = Array.isArray(data.items) ? data.items : [];
 
+      // 2. Busca versão local
       const localRaw = localStorage.getItem("cart");
       const localItems = localRaw ? JSON.parse(localRaw) : [];
 
-      if (localItems.length > items.length) {
-        console.warn("Sync: Local tem mais itens. Atualizando servidor...");
-        replaceOnServer(localItems);
-      } else {
-        setCart(items);
-        cartRef.current = items;
-        localStorage.setItem("cart", JSON.stringify(items));
+      // Lógica de Merge: Se o local tiver itens e for diferente do servidor, o local ganha (assumimos que é o mais recente)
+      // Se o local estiver vazio, usamos o do servidor.
+      if (localItems.length > 0) {
+        // Opcional: Você pode comparar timestamps se quiser ser mais preciso,
+        // mas assumir que o Local é a "intenção mais recente" do usuário costuma funcionar bem.
+        setCart(localItems);
+        replaceOnServer(localItems); // Atualiza o servidor com o que está no local
+      } else if (serverItems.length > 0) {
+        setCart(serverItems);
+        localStorage.setItem("cart", JSON.stringify(serverItems));
       }
+
+      // Valida estoque do que foi decidido
+      const finalItems = localItems.length > 0 ? localItems : serverItems;
+      if (finalItems.length > 0) refreshCartStock(finalItems);
     } catch (err) {
       console.error("fetchCart error:", err);
     }
-  }, [doFetch, user, replaceOnServer]);
+  }, [doFetch, user, replaceOnServer, refreshCartStock]);
 
   useEffect(() => {
     if (!initialized) return;
@@ -247,53 +214,19 @@ const ProductProvider = ({ children }) => {
     if (user) {
       fetchCart();
     } else {
+      // Se não tem user, confia 100% no local e só valida estoque
       const local = JSON.parse(localStorage.getItem("cart") || "[]");
-      setCart(local);
+      if (local.length > 0) refreshCartStock(local);
     }
-  }, [user, initialized, fetchCart]);
+  }, [user, initialized, fetchCart, refreshCartStock]);
 
-  //-----------------------------------
-
-  useEffect(() => {
-    const onCartMerged = (e) => {
-      try {
-        const items = (e && e.detail) || [];
-        setCart(items);
-        cartRef.current = items;
-        localStorage.setItem("cart", JSON.stringify(items));
-        stockRefreshed.current = true;
-      } catch (err) {
-        console.error("onCartMerged error:", err);
-      }
-    };
-
-    const onLogout = () => {
-      setCart([]);
-      cartRef.current = [];
-      localStorage.removeItem("cart");
-      stockRefreshed.current = false;
-    };
-
-    window.addEventListener("shop:cartMerged", onCartMerged);
-    window.addEventListener("shop:logout", onLogout);
-    return () => {
-      window.removeEventListener("shop:cartMerged", onCartMerged);
-      window.removeEventListener("shop:logout", onLogout);
-    };
-  }, []);
-
-  //-----------------------------------
-
+  // ... (FetchOld e UpdateProductList mantêm igual) ...
   const fetchOld = useCallback(
     async (page = 1) => {
-      if (oldControllerRef.current) {
-        oldControllerRef.current.abort();
-      }
+      if (oldControllerRef.current) oldControllerRef.current.abort();
       const controller = new AbortController();
       oldControllerRef.current = controller;
-
       setIsLoadingOld(true);
-
       try {
         const params = new URLSearchParams({
           page: page.toString(),
@@ -304,35 +237,25 @@ const ProductProvider = ({ children }) => {
           `/dashboard?${params}`,
           "GET",
           undefined,
-          {
-            signal: controller.signal,
-          }
+          { signal: controller.signal },
         );
-
-        if (!response.ok) {
-          throw new Error(`Erro ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`Erro ${response.status}`);
         const { products = [], totalPages = 1 } = await response.json();
         setOldProducts(products);
         setOldTotalPages(totalPages);
       } catch (err) {
-        if (err.name !== "AbortError") {
-          console.error("fetchOld error:", err);
-        }
+        if (err.name !== "AbortError") console.error("fetchOld error:", err);
       } finally {
         setIsLoadingOld(false);
-
         if (oldControllerRef.current === controller)
           oldControllerRef.current = null;
       }
     },
-    [oldLimit]
+    [oldLimit],
   );
 
   useEffect(() => {
     fetchOld(oldPage);
-
     return () => {
       if (oldControllerRef.current) oldControllerRef.current.abort();
     };
@@ -340,71 +263,54 @@ const ProductProvider = ({ children }) => {
 
   const updateProductList = useCallback(
     async (queryUrl = {}) => {
-      if (listControllerRef.current) {
-        listControllerRef.current.abort();
-      }
+      if (listControllerRef.current) listControllerRef.current.abort();
       const controller = new AbortController();
       listControllerRef.current = controller;
-
       setIsLoading(true);
-
       try {
         const query = new URLSearchParams({
           page: page.toString(),
           limit: limit.toString(),
           ...queryUrl,
         });
-
         const response = await fetchDataForm(
           `/dashboard?${query}`,
           "GET",
           undefined,
-          {
-            signal: controller.signal,
-          }
+          { signal: controller.signal },
         );
-
-        if (!response.ok) {
-          throw new Error(`Erro ${response.status}`);
-        }
-
+        if (!response.ok) throw new Error(`Erro ${response.status}`);
         const data = await response.json();
         const products = data.products || [];
-
         const now = Date.now();
         const enriched = products.map((p) => ({
           ...p,
           isNew: now - new Date(p.timestamp) < 7 * 24 * 3600 * 1000,
           isOld: now - new Date(p.timestamp) >= 7 * 24 * 3600 * 1000,
         }));
-
         setTotalPages(data.totalPages ?? null);
         setTotal(data.total ?? null);
         setDataForm(enriched);
       } catch (err) {
-        if (err.name !== "AbortError") {
+        if (err.name !== "AbortError")
           console.error("updateProductList error:", err);
-        }
       } finally {
         setIsLoading(false);
-
         if (listControllerRef.current === controller)
           listControllerRef.current = null;
       }
     },
-    [page, limit]
+    [page, limit],
   );
 
   useEffect(() => {
     updateProductList();
-
     return () => {
       if (listControllerRef.current) listControllerRef.current.abort();
     };
   }, [updateProductList]);
 
-  //-----------------------------------
-
+  // Lógica de Sincronização LocalStorage e Contexto
   useEffect(() => {
     if (!dataForm || !dataForm.length) return;
     setCart((prev) =>
@@ -419,50 +325,31 @@ const ProductProvider = ({ children }) => {
               size: prod.size ?? item.size,
             }
           : item;
-      })
+      }),
     );
   }, [dataForm]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("cart", JSON.stringify(cart || []));
-    } catch (err) {
-      console.error("Error saving cart to localStorage", err);
-    }
-  }, [cart]);
-
-  const lastAddRef = useRef({ key: null, ts: 0 });
+  // Add to Cart com Debounce
   const addToCart = useCallback(
     (product, quantity = 1, { increment = false } = {}) => {
       if (!product || quantity <= 0) return;
 
-      const key = `${product.product_id}:${
-        increment ? "inc" : "set"
-      }:${quantity}`;
-      const now = Date.now();
-      if (lastAddRef.current.key === key && now - lastAddRef.current.ts < 700) {
-        return;
-      }
-      lastAddRef.current = { key, ts: now };
-
       setCart((prev) => {
         const idx = prev.findIndex((p) => p.product_id === product.product_id);
         const next = [...prev];
-
         const maxStock = Number(product.quantity ?? product.stock ?? 999);
-
         let newQty = Number(quantity);
 
         if (idx >= 0) {
           const currentQty = Number(prev[idx].quantity);
           newQty = increment ? currentQty + Number(quantity) : Number(quantity);
 
-          // TRAVA AQUI
           if (newQty > maxStock) {
             toast.info(`Limite de estoque atingido: ${maxStock} unid.`);
+            // Se já tem no carrinho, não muda, mas dispara sync pra garantir
+            if (user) debouncedReplace(prev);
             return prev;
           }
-
           next[idx] = { ...prev[idx], quantity: newQty, stock: maxStock };
           toast.success("Carrinho atualizado!");
         } else {
@@ -478,7 +365,7 @@ const ProductProvider = ({ children }) => {
         return next;
       });
     },
-    [debouncedReplace, user]
+    [debouncedReplace, user],
   );
 
   const updateQuantity = useCallback(
@@ -488,58 +375,35 @@ const ProductProvider = ({ children }) => {
         const item = prev.find((p) => p.product_id === productId);
         if (!item) return prev;
 
-        // Procura estoque no item do carrinho ou na lista global
-        const stock =
-          item.stock !== undefined
-            ? Number(item.stock)
-            : (dataForm.find((p) => p.product_id === productId)?.quantity ??
-              999);
+        const stock = item.stock !== undefined ? Number(item.stock) : 999;
 
-        // TRAVA AQUI
         if (newQuantity > stock) {
           toast.info(`Apenas ${stock} disponíveis.`);
           return prev;
         }
 
         const next = prev.map((p) =>
-          p.product_id === productId ? { ...p, quantity: newQuantity } : p
+          p.product_id === productId ? { ...p, quantity: newQuantity } : p,
         );
 
         if (user) debouncedReplace(next);
         return next;
       });
     },
-    [debouncedReplace, user, dataForm]
+    [debouncedReplace, user],
   );
 
   const removeFromCart = useCallback(
     (productId) => {
       setCart((prev) => {
         const next = prev.filter((p) => p.product_id !== productId);
-        try {
-          localStorage.setItem("cart", JSON.stringify(next));
-        } catch (e) {
-          console.warn("removeFromCart -> localStorage write failed:", e);
-        }
-        if (user) {
-          replaceOnServer(next).catch((e) => {
-            console.warn("Immediate replaceOnServer failed:", e);
-            debouncedReplace(next);
-          });
-        } else {
-          debouncedReplace(next);
-        }
+        // Salva direto no server sem debounce para garantir remoção
+        if (user) replaceOnServer(next);
         return next;
       });
     },
-    [debouncedReplace, user, replaceOnServer]
+    [user, replaceOnServer],
   );
-
-  //----------------------------------
-
-  useEffect(() => {
-    updateProductList();
-  }, [page, limit, updateProductList]);
 
   return (
     <productContext.Provider
