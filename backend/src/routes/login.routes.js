@@ -17,7 +17,7 @@ loginRoutes.post(
   validate,
   async (request, response) => {
     await loginRepository.signUp(request, response);
-  }
+  },
 );
 
 loginRoutes.post("/verify-email", async (request, response) => {
@@ -30,7 +30,7 @@ loginRoutes.post(
   validate,
   async (request, response) => {
     await loginRepository.signIn(request, response);
-  }
+  },
 );
 
 loginRoutes.post("/sign-out", async (request, response) => {
@@ -43,7 +43,7 @@ loginRoutes.get(
   isAdmin,
   async (request, response) => {
     await loginRepository.getUsers(request, response);
-  }
+  },
 );
 
 loginRoutes.delete("/users/me", authenticateToken, async (req, res) => {
@@ -56,7 +56,7 @@ loginRoutes.delete(
   isAdmin,
   async (request, response) => {
     await loginRepository.deleteUser(request, response);
-  }
+  },
 );
 
 loginRoutes.post("/forgot-password", async (req, res) => {
@@ -69,7 +69,7 @@ loginRoutes.post(
   validate,
   async (req, res) => {
     await loginRepository.resetPassword(req, res);
-  }
+  },
 );
 
 loginRoutes.post("/refresh-token", async (request, response) => {

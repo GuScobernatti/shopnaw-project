@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import authContext from "./createAuthContext";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { API_BASE } from "../../api";
 
 const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
@@ -16,7 +17,7 @@ const AuthProvider = ({ children }) => {
 
   const getCsrfToken = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:3333/csrf-token", {
+      const res = await fetch(`${API_BASE}/csrf-token`, {
         credentials: "include",
       });
       if (!res.ok) return null;
@@ -39,7 +40,7 @@ const AuthProvider = ({ children }) => {
         }
 
         const csrfToken = await getCsrfToken();
-        const res = await fetch("http://localhost:3333/auth/refresh-token", {
+        const res = await fetch(`${API_BASE}/auth/refresh-token`, {
           method: "POST",
           credentials: "include",
           headers: csrfToken ? { "X-CSRF-Token": csrfToken } : {},
@@ -74,7 +75,7 @@ const AuthProvider = ({ children }) => {
     try {
       const csrfToken = await getCsrfToken();
       const signal = abortActiveRequest();
-      const response = await fetch("http://localhost:3333/auth/sign-up", {
+      const response = await fetch(`${API_BASE}/auth/sign-up`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -100,7 +101,7 @@ const AuthProvider = ({ children }) => {
       const signal = abortActiveRequest();
       const payload = { ...credentials, localCart };
 
-      const response = await fetch("http://localhost:3333/auth/sign-in", {
+      const response = await fetch(`${API_BASE}/auth/sign-in`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -123,7 +124,7 @@ const AuthProvider = ({ children }) => {
 
       if (data.mergedCart) {
         window.dispatchEvent(
-          new CustomEvent("shop:cartMerged", { detail: data.mergedCart })
+          new CustomEvent("shop:cartMerged", { detail: data.mergedCart }),
         );
       }
 
@@ -140,7 +141,7 @@ const AuthProvider = ({ children }) => {
       const csrfToken = await getCsrfToken();
       const signal = abortActiveRequest();
 
-      const response = await fetch("http://localhost:3333/auth/sign-out", {
+      const response = await fetch(`${API_BASE}/auth/sign-out`, {
         method: "POST",
         headers: csrfToken ? { "X-CSRF-Token": csrfToken } : undefined,
         credentials: "include",
@@ -193,14 +194,11 @@ const AuthProvider = ({ children }) => {
           }
 
           const csrfToken = await getCsrfToken();
-          const refreshRes = await fetch(
-            "http://localhost:3333/auth/refresh-token",
-            {
-              method: "POST",
-              credentials: "include",
-              headers: csrfToken ? { "X-CSRF-Token": csrfToken } : undefined,
-            }
-          );
+          const refreshRes = await fetch(`${API_BASE}/auth/refresh-token`, {
+            method: "POST",
+            credentials: "include",
+            headers: csrfToken ? { "X-CSRF-Token": csrfToken } : undefined,
+          });
 
           if (!refreshRes.ok) {
             localStorage.removeItem("has_refresh");
@@ -224,7 +222,7 @@ const AuthProvider = ({ children }) => {
       }
       return res;
     },
-    [accessToken, getCsrfToken]
+    [accessToken, getCsrfToken],
   );
 
   return (
