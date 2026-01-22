@@ -87,12 +87,14 @@ function SignUpForm() {
       const resData = await response.json();
 
       if (response.ok) {
-        toast.success("Cadastro realizado com sucesso!");
+        toast.success(
+          resData.message || "Cadastro realizado! Verifique seu e-mail.",
+        );
 
         reset();
         setTimeout(() => {
           navigate("/account/login", { replace: true });
-        }, 1500);
+        }, 2500);
       } else {
         if (resData.errors) {
           resData.errors.forEach((err) => {
