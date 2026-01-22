@@ -15,6 +15,11 @@ export const HeaderComponent = styled.header`
   position: sticky;
   top: 0;
 
+  @media (max-width: 768px) {
+    height: 70px;
+    padding: 10px 15px;
+  }
+
   .logoContent {
     display: flex;
     align-items: center;
@@ -25,18 +30,35 @@ export const HeaderComponent = styled.header`
       width: 70px;
       height: 70px;
       border-radius: 50%;
+
+      @media (max-width: 768px) {
+        width: 50px;
+        height: 50px;
+      }
     }
   }
 
   .nav-menu {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     position: relative;
 
+    @media (max-width: 768px) {
+      gap: 12px;
+    }
+
     .icon {
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       cursor: pointer;
+    }
+
+    .dropDownAccount,
+    .dropDownLogout {
+      @media (max-width: 768px) {
+        right: -10px;
+        width: 160px;
+      }
     }
 
     .dropDownAccount {

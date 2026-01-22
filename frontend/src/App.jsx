@@ -17,19 +17,17 @@ function App() {
 
   return (
     <SearchProductProvider>
-      <>
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <>
-            <AnnouncementBar />
-            <Header />
-            <Outlet />
-            <Footer />
-            <FloatingWhatsApp />
-          </>
-        )}
-      </>
+      <div
+        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
+        <AnnouncementBar />
+        <Header />
+
+        <main style={{ flex: 1 }}>{isLoading ? <Loading /> : <Outlet />}</main>
+
+        <Footer />
+        <FloatingWhatsApp />
+      </div>
     </SearchProductProvider>
   );
 }

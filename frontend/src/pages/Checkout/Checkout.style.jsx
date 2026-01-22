@@ -37,6 +37,7 @@ export const SummarySection = styled.div`
   width: 100%;
   flex: 1;
   height: 430px;
+  overflow-y: auto;
 
   h2 {
     margin-bottom: 20px;

@@ -5,6 +5,7 @@ import fetchDataForm, { API_BASE } from "../../../../api";
 import { FormStyled } from "../../GProducts/form/Form.style";
 import { Container } from "./UpdateInfo.style";
 import authContext from "../../../../contexts/loginContext/createAuthContext";
+import Loading from "../../../Loading/Loading";
 
 function UpdateInfo() {
   const { authFetch } = useContext(authContext);
@@ -13,9 +14,11 @@ function UpdateInfo() {
   const [newBannerFile, setNewBannerFile] = useState(null);
   const [currentBannerMobile, setCurrentBannerMobile] = useState(null);
   const [newBannerFileMobile, setNewBannerFileMobile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadConfig() {
+      setLoading(true);
       try {
         const res = await fetchDataForm("/config", "GET");
         const data = await res.json();
@@ -39,6 +42,8 @@ function UpdateInfo() {
         }
       } catch (err) {
         console.error("Erro ao carregar configs", err);
+      } finally {
+        setLoading(false);
       }
     }
     loadConfig();
@@ -68,6 +73,8 @@ function UpdateInfo() {
       console.error(error);
     }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <Container>

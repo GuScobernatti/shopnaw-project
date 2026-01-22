@@ -12,6 +12,7 @@ import productContext from "../../../../contexts/productContext/createProductCon
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import authContext from "../../../../contexts/loginContext/createAuthContext";
+import Loading from "../../../Loading/Loading";
 
 function Form() {
   const { authFetch } = useContext(authContext);
@@ -36,6 +37,7 @@ function Form() {
     "height",
     "length",
   ]);
+  const [loading, setLoading] = useState(true);
 
   const fetchOptions = async () => {
     const [catRes, sizeRes] = await Promise.all([
@@ -106,6 +108,8 @@ function Form() {
         });
       } catch (err) {
         console.error("Erro ao buscar produto individual:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -179,6 +183,8 @@ function Form() {
       toast.error("Erro ao salvar produto.");
     }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <ContainerForm>
@@ -259,7 +265,7 @@ function Form() {
             type="button"
             onClick={() =>
               setValue((prevValue) =>
-                prevValue == 0 ? prevValue : prevValue - 1
+                prevValue == 0 ? prevValue : prevValue - 1,
               )
             }
             className="btn"

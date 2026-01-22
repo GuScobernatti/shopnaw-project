@@ -17,6 +17,7 @@ import {
 import fetchDataForm, { API_BASE } from "../../../../api";
 import { toast } from "react-toastify";
 import authContext from "../../../../contexts/loginContext/createAuthContext";
+import Loading from "../../../Loading/Loading";
 
 function OffersAndCupons() {
   const { authFetch } = useContext(authContext);
@@ -35,17 +36,19 @@ function OffersAndCupons() {
     active: true,
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const formatForInput = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
     const pad = (n) => n.toString().padStart(2, "0");
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-      date.getDate()
+      date.getDate(),
     )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   };
 
   const loadPromotions = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await fetchDataForm("/promotions", "GET");
       if (res.ok) {
@@ -64,6 +67,8 @@ function OffersAndCupons() {
       }
     } catch (err) {
       console.error("Erro ao carregar promoções", err);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -95,7 +100,7 @@ function OffersAndCupons() {
 
       if (res.ok) {
         toast.success(
-          `Promoção ${!p.active ? "ativada" : "desativada"} com sucesso!`
+          `Promoção ${!p.active ? "ativada" : "desativada"} com sucesso!`,
         );
         loadPromotions();
       } else {
@@ -140,7 +145,7 @@ function OffersAndCupons() {
       toast.success(
         isEditing
           ? "Promoção atualizada com sucesso!"
-          : "Promoção criada com sucesso!"
+          : "Promoção criada com sucesso!",
       );
 
       setForm({
@@ -163,6 +168,8 @@ function OffersAndCupons() {
       toast.error("Erro ao salvar promoção.");
     }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <Container>

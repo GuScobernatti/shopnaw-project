@@ -9,6 +9,11 @@ const FooterContainer = styled.footer`
   padding: 40px 20px;
   margin-top: 50px;
   border-top: 1px solid #e9ecef;
+
+  @media (max-width: 768px) {
+    padding: 30px 15px;
+    margin-top: 30px;
+  }
 `;
 
 const Content = styled.div`
@@ -16,13 +21,22 @@ const Content = styled.div`
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  gap: 30px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
 `;
 
 const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  @media (max-width: 480px) {
+    align-items: center;
+  }
 
   h3 {
     font-size: 1.1rem;

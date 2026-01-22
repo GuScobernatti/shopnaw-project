@@ -24,6 +24,7 @@ import {
   Dots,
 } from "./AddedShirts.style";
 import authContext from "../../../../contexts/loginContext/createAuthContext";
+import Loading from "../../../Loading/Loading";
 
 function AddedShirts() {
   const { authFetch } = useContext(authContext);
@@ -38,11 +39,13 @@ function AddedShirts() {
   } = useContext(productContext);
   const [zoomImage, setZoomImage] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    updateProductList().catch((e) =>
-      console.warn("updateProductList failed:", e)
-    );
+    setLoading(true);
+    updateProductList()
+      .catch((e) => console.warn("updateProductList failed:", e))
+      .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
@@ -56,7 +59,7 @@ function AddedShirts() {
 
   const deleteProduct = async (id) => {
     const confirmDelete = window.confirm(
-      "Tem certeza que deseja deletar este produto?"
+      "Tem certeza que deseja deletar este produto?",
     );
     if (!confirmDelete) return;
 
@@ -127,6 +130,8 @@ function AddedShirts() {
       </Container>
     );
   }
+
+  if (loading) return <Loading />;
 
   return (
     <>

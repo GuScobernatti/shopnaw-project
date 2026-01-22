@@ -42,7 +42,7 @@ function Site() {
       window.history.replaceState(
         {},
         "",
-        `${window.location.pathname}?${cleanParams}`
+        `${window.location.pathname}?${cleanParams}`,
       );
     }
 

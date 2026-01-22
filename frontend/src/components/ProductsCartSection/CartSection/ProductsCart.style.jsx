@@ -6,8 +6,8 @@ export const CartDiv = styled.div`
   height: 100%;
   right: 0px;
   top: 0px;
-  width: 70%;
-  min-width: 400px;
+  width: 100%;
+  max-width: 400px;
   z-index: 1000;
   transform: ${({ isCartOpen }) =>
     isCartOpen ? "translateX(0)" : "translateX(100%)"};
@@ -15,41 +15,40 @@ export const CartDiv = styled.div`
   transition: all 0.4s ease-in-out;
 
   @media (min-width: 768px) {
-    width: 30%;
+    width: 400px;
   }
 `;
 
 export const CartHeader = styled.section`
-  margin: 0 auto;
-  width: 90%;
+  width: 100%;
   height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #e3e3e3;
   color: #000;
+  padding: 0 20px;
 
   > svg {
     color: #000;
     width: 30px;
     height: 30px;
     font-size: 1.7rem;
-
     cursor: pointer;
   }
 `;
 
 export const CartHeaderTitle = styled.h2`
   text-transform: uppercase;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 `;
 
 export const CartProductsSection = styled.section`
-  width: 90%;
-  height: 550px;
-  margin: 20px auto 10px;
+  width: 100%;
+  //height: 550px;
+  height: calc(100% - 180px);
+  //margin: 20px auto 10px;
   padding: 10px;
-  overflow: auto;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -60,16 +59,17 @@ export const CartProductCard = styled.div`
   width: 100%;
   height: auto;
   display: flex;
-  gap: 5px;
+  gap: 10px;
   cursor: pointer;
   border-bottom: 1px solid #e3e3e3;
-  padding: 10px;
+  padding: 10px 5px;
 
   img {
     height: 90px;
     width: 70px;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 8px;
+    flex-shrink: 0;
   }
 `;
 
@@ -91,40 +91,51 @@ export const ShirtInfoCart = styled.div`
 `;
 
 export const CartFooter = styled.section`
-  width: 90%;
+  width: 100%;
   height: auto;
-  margin: 10px auto 0;
+  position: absolute;
+  bottom: 0;
+  background: white;
+  border-top: 1px solid #e3e3e3;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 10px;
-  padding: 10px;
+  padding: 20px;
 
   p {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: space-between;
   }
 
   button {
-    padding: 8px;
+    padding: 12px;
     width: 100%;
-    font-size: 1.1rem;
+    font-size: 1rem;
     border: none;
     background-color: #82858b;
     color: #fff;
-    border-radius: 0.8em;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
+
+    &:disabled {
+      background-color: #ccc;
+    }
   }
 `;
 
 export const DivEmptyCart = styled.div`
-  margin: 0 auto;
-  width: 90%;
-  height: 570px;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 10px;
+  padding: 20px;
+  text-align: center;
 
   .emptyCartIcon {
     font-size: 2.5rem;

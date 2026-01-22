@@ -13,6 +13,7 @@ import {
 import { toast } from "react-toastify";
 import AddressForm from "../../components/AddressForm/AddressForm";
 import promotionsContext from "../../contexts/promotionsContext/createPromotionContext";
+import Loading from "../../components/Loading/Loading";
 
 function Checkout() {
   const { cart, setCart, refreshCartStock } = useContext(productContext);
@@ -24,11 +25,12 @@ function Checkout() {
   const location = useLocation();
   const shippingFromCart = location.state?.shipping || null;
   const zipCodeFromCart = location.state?.zipCode || "";
+  const [loadingMP, setLoadingMP] = useState(true);
 
   useEffect(() => {
     initMercadoPago(import.meta.env.VITE_MP_PUBLIC_KEY, {
       locale: "pt-BR",
-    });
+    }).then(() => setLoadingMP(false));
   }, []);
 
   const totalAmount = useMemo(() => {
@@ -133,6 +135,8 @@ function Checkout() {
   const onReady = async () => {};
 
   if (cart.length === 0) return null;
+
+  if (loadingMP) return <Loading />;
 
   return (
     <CheckoutContainer>

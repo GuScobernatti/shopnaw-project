@@ -12,10 +12,11 @@ import { API_BASE } from "../../api";
 import productContext from "../../contexts/productContext/createProductContext";
 import promotionsContext from "../../contexts/promotionsContext/createPromotionContext";
 import { MdAddShoppingCart } from "react-icons/md";
+import Loading from "../Loading/Loading";
 
 function NewShirstSection() {
   const navigate = useNavigate();
-  const { dataForm, addToCart } = useContext(productContext);
+  const { dataForm, addToCart, isLoading } = useContext(productContext);
   const { applyOffers } = useContext(promotionsContext);
   const [hoveredId, setHoveredId] = useState(null);
 
@@ -31,13 +32,14 @@ function NewShirstSection() {
 
   const recentProducts = useMemo(
     () => dataForm.filter((p) => p.isNew),
-    [dataForm]
+    [dataForm],
   );
 
   if (!recentProducts.length) return null;
+  if (isLoading) return <Loading />;
 
   return (
-    <NewShirtsSec>
+    <NewShirtsSec id="newShirts">
       <Title>Lançamentos</Title>
 
       <ProductContainer>

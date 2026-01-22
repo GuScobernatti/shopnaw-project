@@ -13,6 +13,7 @@ import {
   Title,
 } from "./ManageCategories.style";
 import authContext from "../../../../contexts/loginContext/createAuthContext";
+import Loading from "../../../Loading/Loading";
 
 function ManageCategories() {
   const { authFetch } = useContext(authContext);
@@ -20,8 +21,10 @@ function ManageCategories() {
   const [sizes, setSizes] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [newSize, setNewSize] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchOptions = async () => {
+    setLoading(true);
     try {
       const [catRes, sizeRes] = await Promise.all([
         fetchDataForm("/options?type=category", "GET"),
@@ -35,6 +38,8 @@ function ManageCategories() {
     } catch (err) {
       console.error(err);
       toast.error("Erro ao carregar opções.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,7 +60,7 @@ function ManageCategories() {
       toast.success(
         `${
           type === "category" ? "Categoria adicionada!" : "Tamanho adicionado!"
-        }`
+        }`,
       );
       fetchOptions();
       if (type === "category") setNewCategory("");
@@ -67,7 +72,7 @@ function ManageCategories() {
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Tem certeza que deseja remover esta opção?"
+      "Tem certeza que deseja remover esta opção?",
     );
     if (!confirmDelete) return;
 
@@ -88,6 +93,8 @@ function ManageCategories() {
       toast.error("Erro de conexão ao tentar remover.");
     }
   };
+
+  if (loading) return <Loading />;
 
   return (
     <Container>

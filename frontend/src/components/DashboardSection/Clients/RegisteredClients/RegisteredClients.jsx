@@ -20,6 +20,7 @@ import { FaChevronLeft, FaChevronRight, FaTrash } from "react-icons/fa";
 import { API_BASE } from "../../../../api";
 import authContext from "../../../../contexts/loginContext/createAuthContext";
 import { toast } from "react-toastify";
+import Loading from "../../../Loading/Loading";
 
 const RegisteredClients = () => {
   const { authFetch, user } = useContext(authContext);
@@ -27,11 +28,12 @@ const RegisteredClients = () => {
   const [dataUsers, setDataUsers] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   const fetchUsers = useCallback(async () => {
     try {
       const res = await authFetch(
-        `${API_BASE}/auth/users?page=${page}&limit=10`
+        `${API_BASE}/auth/users?page=${page}&limit=10`,
       );
 
       if (res.ok) {
@@ -48,6 +50,8 @@ const RegisteredClients = () => {
     } catch (err) {
       console.error("Erro ao carregar usuários:", err);
       setError("Ocorreu um erro inesperado.");
+    } finally {
+      setLoading(false);
     }
   }, [authFetch, page]);
 
@@ -92,7 +96,7 @@ const RegisteredClients = () => {
 
   const handleDeleteUser = async (userId, userName) => {
     const confirm = window.confirm(
-      `Tem certeza que deseja excluir o usuário "${userName}"? Isso apagará todos os dados dele.`
+      `Tem certeza que deseja excluir o usuário "${userName}"? Isso apagará todos os dados dele.`,
     );
     if (!confirm) return;
 
@@ -115,6 +119,7 @@ const RegisteredClients = () => {
   };
 
   if (error) return <div style={{ padding: 20, color: "red" }}>{error}</div>;
+  if (loading) return <Loading />;
 
   const hasClients = dataUsers.length > 0;
 
@@ -230,7 +235,7 @@ const RegisteredClients = () => {
               >
                 {item}
               </PaginationButton>
-            )
+            ),
           )}
 
           <PaginationButton

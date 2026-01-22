@@ -1,151 +1,178 @@
-import { StrictMode } from "react";
+import { StrictMode, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { GlobalStyle } from "./globalStyle/GlobalStyle.jsx";
 import ProductProvider from "./contexts/productContext/productContextProvider.jsx";
-import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./pages/home/Home.jsx";
-import Site from "./pages/site/Site.jsx";
-import Dashboard from "./pages/dashboard/Dashboard.jsx";
-import Login from "./pages/login/Login.jsx";
-import SignUp from "./pages/signUp/SignUp.jsx";
-import Cart from "./pages/Cart/Cart.jsx";
-import ProductPage from "./pages/eachProductPage/ProductPage.jsx";
-import HomeDashboard from "./components/DashboardSection/Home/HomeDashboard.jsx";
-import Form from "./components/DashboardSection/GProducts/form/Form.jsx";
-import AddedShirts from "./components/DashboardSection/GProducts/addedShirts/AddedShirts.jsx";
-import Orders from "./components/DashboardSection/Orders/Orders.jsx";
-import RegisteredClients from "./components/DashboardSection/Clients/RegisteredClients/RegisteredClients.jsx";
-import UpdateInfo from "./components/DashboardSection/Settings/UpdateShopInfo/UpdateInfo.jsx";
-import ManageCategories from "./components/DashboardSection/Settings/ManageCategories/ManageCategories.jsx";
-import PromotionsManager from "./components/DashboardSection/Settings/OffersAndCupons/PromotionsManager.jsx";
 import PromotionsProvider from "./contexts/promotionsContext/promotionsContextProvider.jsx";
 import AuthProvider from "./contexts/loginContext/authContextProvider.jsx";
-import Checkout from "./pages/Checkout/Checkout.jsx";
-import Success from "./pages/Checkout/Success.jsx";
-import PrivateRoutes from "./routes/PrivateRoutes.jsx";
 import ConfigProvider from "./contexts/configContext/configContextProvider.jsx";
-import AdminRoutes from "./routes/AdminRoutes.jsx";
-import ForgotPassword from "./pages/Account/ForgotPassword";
-import ResetPassword from "./pages/Account/ResetPassword";
-import TermsOfUse from "./pages/Institutional/TermsOfUse.jsx";
-import PrivacyPolicy from "./pages/Institutional/PrivacyPolicy.jsx";
-import MyOrders from "./pages/Account/MyOrders.jsx";
-import NotFound from "./pages/NotFound/NotFound";
-import VerifyEmail from "./pages/Account/VerifyEmail.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CookieConsent from "react-cookie-consent";
+import Load from "./load.jsx";
+
+const App = lazy(() => import("./App.jsx"));
+const Home = lazy(() => import("./pages/home/Home.jsx"));
+const Site = lazy(() => import("./pages/site/Site.jsx"));
+const Dashboard = lazy(() => import("./pages/dashboard/Dashboard.jsx"));
+const Login = lazy(() => import("./pages/login/Login.jsx"));
+const SignUp = lazy(() => import("./pages/signUp/SignUp.jsx"));
+const Cart = lazy(() => import("./pages/Cart/Cart.jsx"));
+const ProductPage = lazy(
+  () => import("./pages/eachProductPage/ProductPage.jsx"),
+);
+const Checkout = lazy(() => import("./pages/Checkout/Checkout.jsx"));
+const Success = lazy(() => import("./pages/Checkout/Success.jsx"));
+const MyOrders = lazy(() => import("./pages/Account/MyOrders.jsx"));
+const ForgotPassword = lazy(() => import("./pages/Account/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/Account/ResetPassword"));
+const VerifyEmail = lazy(() => import("./pages/Account/VerifyEmail.jsx"));
+const TermsOfUse = lazy(() => import("./pages/Institutional/TermsOfUse.jsx"));
+const PrivacyPolicy = lazy(
+  () => import("./pages/Institutional/PrivacyPolicy.jsx"),
+);
+const NotFound = lazy(() => import("./pages/NotFound/NotFound"));
+const HomeDashboard = lazy(
+  () => import("./components/DashboardSection/Home/HomeDashboard.jsx"),
+);
+const Form = lazy(
+  () => import("./components/DashboardSection/GProducts/form/Form.jsx"),
+);
+const AddedShirts = lazy(
+  () =>
+    import("./components/DashboardSection/GProducts/addedShirts/AddedShirts.jsx"),
+);
+const Orders = lazy(
+  () => import("./components/DashboardSection/Orders/Orders.jsx"),
+);
+const RegisteredClients = lazy(
+  () =>
+    import("./components/DashboardSection/Clients/RegisteredClients/RegisteredClients.jsx"),
+);
+const UpdateInfo = lazy(
+  () =>
+    import("./components/DashboardSection/Settings/UpdateShopInfo/UpdateInfo.jsx"),
+);
+const ManageCategories = lazy(
+  () =>
+    import("./components/DashboardSection/Settings/ManageCategories/ManageCategories.jsx"),
+);
+const PromotionsManager = lazy(
+  () =>
+    import("./components/DashboardSection/Settings/OffersAndCupons/PromotionsManager.jsx"),
+);
+const PrivateRoutes = lazy(() => import("./routes/PrivateRoutes.jsx"));
+const AdminRoutes = lazy(() => import("./routes/AdminRoutes.jsx"));
 
 const router = createBrowserRouter([
   {
     path: "/site",
-    element: <App />,
+    element: Load(App),
     children: [
       {
         path: "/site",
-        element: <Site />,
+        element: Load(Site),
       },
       {
         path: "/site/product/:name/:id",
-        element: <ProductPage />,
+        element: Load(ProductPage),
       },
     ],
   },
   {
     path: "/checkout/carrinho",
-    element: <Cart />,
+    element: Load(Cart),
   },
   // --- ROTAS PROTEGIDAS ---
   {
-    element: <PrivateRoutes />,
+    element: Load(PrivateRoutes),
     children: [
       {
         path: "/checkout",
-        element: <Checkout />,
+        element: Load(Checkout),
       },
       {
         path: "/checkout/success",
-        element: <Success />,
+        element: Load(Success),
       },
       {
         path: "/account/orders",
-        element: <MyOrders />,
+        element: Load(MyOrders),
       },
     ],
   },
   // ----------------
   {
     path: "/account/login",
-    element: <Login />,
+    element: Load(Login),
   },
   {
     path: "/account/cadastro",
-    element: <SignUp />,
+    element: Load(SignUp),
   },
   {
     path: "/account/verify-email",
-    element: <VerifyEmail />,
+    element: Load(VerifyEmail),
   },
   {
     path: "/account/forgot-password",
-    element: <ForgotPassword />,
+    element: Load(ForgotPassword),
   },
   {
     path: "/account/reset-password",
-    element: <ResetPassword />,
+    element: Load(ResetPassword),
   },
   {
     path: "/",
-    element: <Home />,
+    element: Load(Home),
   },
   {
     path: "/termos-de-uso",
-    element: <TermsOfUse />,
+    element: Load(TermsOfUse),
   },
   {
     path: "/politica-de-privacidade",
-    element: <PrivacyPolicy />,
+    element: Load(PrivacyPolicy),
   },
   // --- ROTAS PROTEGIDAS ---
   {
-    element: <AdminRoutes />,
+    element: Load(AdminRoutes),
     children: [
       {
         path: "/dashboard",
-        element: <Dashboard />,
+        element: Load(Dashboard),
         children: [
           {
             index: true,
-            element: <HomeDashboard />,
+            element: Load(HomeDashboard),
           },
           {
             path: "/dashboard/products/addProduct",
-            element: <Form />,
+            element: Load(Form),
           },
           {
             path: "/dashboard/products/addedProducts",
-            element: <AddedShirts />,
+            element: Load(AddedShirts),
           },
           {
             path: "/dashboard/orders",
-            element: <Orders />,
+            element: Load(Orders),
           },
           {
             path: "/dashboard/clients/registeredClients",
-            element: <RegisteredClients />,
+            element: Load(RegisteredClients),
           },
           {
             path: "/dashboard/settings/updateShopInfo",
-            element: <UpdateInfo />,
+            element: Load(UpdateInfo),
           },
           {
             path: "/dashboard/settings/manageCategories",
-            element: <ManageCategories />,
+            element: Load(ManageCategories),
           },
           {
             path: "/dashboard/settings/offers",
-            element: <PromotionsManager />,
+            element: Load(PromotionsManager),
           },
         ],
       },
@@ -155,7 +182,7 @@ const router = createBrowserRouter([
   // ----------------
   {
     path: "*",
-    element: <NotFound />,
+    element: Load(NotFound),
   },
 ]);
 
@@ -204,5 +231,5 @@ createRoot(document.getElementById("root")).render(
         </PromotionsProvider>
       </AuthProvider>
     </ConfigProvider>
-  </StrictMode>
+  </StrictMode>,
 );
