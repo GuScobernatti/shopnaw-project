@@ -51,7 +51,9 @@ function Cart() {
   }, [cart, applyOffers]);
 
   const hasStockIssue = useMemo(() => {
-    return cart.some((item) => item.quantity === 0 || item.stock === 0);
+    return cart.some(
+      (item) => Number(item.quantity) === 0 || Number(item.stock) === 0,
+    );
   }, [cart]);
 
   const handleOpenDropdown = () => {
