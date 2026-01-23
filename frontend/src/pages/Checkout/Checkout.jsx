@@ -46,6 +46,13 @@ function Checkout() {
   }, [cart, applyOffers, shippingFromCart]);
 
   useEffect(() => {
+    if (cart.length > 0 && totalAmount === 0) {
+      toast.error("Pedido inválido (R$ 0,00). Verifique seu carrinho.");
+      navigate("/checkout/carrinho");
+    }
+  }, [totalAmount, cart, navigate]);
+
+  useEffect(() => {
     if (cart.length === 0 && !isSuccess) {
       navigate("/site");
     }

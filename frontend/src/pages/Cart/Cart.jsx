@@ -50,6 +50,10 @@ function Cart() {
     }, 0);
   }, [cart, applyOffers]);
 
+  const hasStockIssue = useMemo(() => {
+    return cart.some((item) => item.quantity === 0 || item.stock === 0);
+  }, [cart]);
+
   const handleOpenDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -107,9 +111,17 @@ function Cart() {
   const goToCheckout = () => {
     if (cart.length === 0) return;
 
+    if (hasStockIssue) {
+      toast.error(
+        "Você possui itens esgotados no carrinho. Remova-os para continuar.",
+      );
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     if (!selectedShipping) {
       toast.warn(
-        "Por favor, calcule e selecione uma opção de frete para continuar."
+        "Por favor, calcule e selecione uma opção de frete para continuar.",
       );
 
       document.getElementById("zipCodeInput")?.focus();
@@ -215,6 +227,8 @@ function Cart() {
                 const originalPrice = Number(product.price);
                 const totalItem = finalPrice * qty;
 
+                const isOutOfStock = qty === 0 || stock === 0;
+
                 const imgUrl = product.image?.startsWith("http")
                   ? product.image
                   : `${API_BASE}${product.image}`;
@@ -229,54 +243,73 @@ function Cart() {
                         <span>
                           Tamanho: <b>{product.size}</b>
                         </span>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "2px",
-                          }}
-                        >
-                          {discountLabel ? (
-                            <>
-                              <span
-                                style={{
-                                  textDecoration: "line-through",
-                                  color: "#999",
-                                  fontSize: "0.9rem",
-                                }}
-                              >
+
+                        {isOutOfStock ? (
+                          <span
+                            style={{
+                              color: "red",
+                              fontWeight: "bold",
+                              marginTop: "5px",
+                            }}
+                          >
+                            PRODUTO ESGOTADO
+                          </span>
+                        ) : (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "2px",
+                            }}
+                          >
+                            {discountLabel ? (
+                              <>
+                                <span
+                                  style={{
+                                    textDecoration: "line-through",
+                                    color: "#999",
+                                    fontSize: "0.9rem",
+                                  }}
+                                >
+                                  {originalPrice.toLocaleString("pt-BR", {
+                                    style: "currency",
+                                    currency: "BRL",
+                                  })}
+                                </span>
+                                <span
+                                  style={{
+                                    color: "#2e7d32",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  {finalPrice.toLocaleString("pt-BR", {
+                                    style: "currency",
+                                    currency: "BRL",
+                                  })}
+                                  <small style={{ marginLeft: "5px" }}>
+                                    / cada
+                                  </small>
+                                </span>
+                                <small
+                                  style={{
+                                    color: "#e53935",
+                                    fontSize: "0.8rem",
+                                  }}
+                                >
+                                  {discountLabel}
+                                </small>
+                              </>
+                            ) : (
+                              <span id="price">
                                 {originalPrice.toLocaleString("pt-BR", {
                                   style: "currency",
                                   currency: "BRL",
-                                })}
+                                })}{" "}
+                                <span>/ cada</span>
                               </span>
-                              <span
-                                style={{ color: "#2e7d32", fontWeight: "bold" }}
-                              >
-                                {finalPrice.toLocaleString("pt-BR", {
-                                  style: "currency",
-                                  currency: "BRL",
-                                })}
-                                <small style={{ marginLeft: "5px" }}>
-                                  / cada
-                                </small>
-                              </span>
-                              <small
-                                style={{ color: "#e53935", fontSize: "0.8rem" }}
-                              >
-                                {discountLabel}
-                              </small>
-                            </>
-                          ) : (
-                            <span id="price">
-                              {originalPrice.toLocaleString("pt-BR", {
-                                style: "currency",
-                                currency: "BRL",
-                              })}{" "}
-                              <span>/ cada</span>
-                            </span>
-                          )}
-                        </div>
+                            )}
+                          </div>
+                        )}
 
                         <span
                           className="removeProduct"
@@ -286,36 +319,38 @@ function Cart() {
                         </span>
                       </div>
 
-                      <div className="buttonAndPrice">
-                        <div className="divChooseQuantity">
-                          <button
-                            onClick={() =>
-                              updateQuantity(product.product_id, qty - 1)
-                            }
-                            disabled={qty <= 1}
-                          >
-                            <AiOutlineMinus />
-                          </button>
-                          <span>{qty}</span>
-                          <button
-                            onClick={() =>
-                              updateQuantity(product.product_id, qty + 1)
-                            }
-                            disabled={qty >= stock}
-                            style={{ opacity: qty >= stock ? 0.5 : 1 }}
-                          >
-                            <AiOutlinePlus />
-                          </button>
-                        </div>
+                      {!isOutOfStock && (
+                        <div className="buttonAndPrice">
+                          <div className="divChooseQuantity">
+                            <button
+                              onClick={() =>
+                                updateQuantity(product.product_id, qty - 1)
+                              }
+                              disabled={qty <= 1}
+                            >
+                              <AiOutlineMinus />
+                            </button>
+                            <span>{qty}</span>
+                            <button
+                              onClick={() =>
+                                updateQuantity(product.product_id, qty + 1)
+                              }
+                              disabled={qty >= stock}
+                              style={{ opacity: qty >= stock ? 0.5 : 1 }}
+                            >
+                              <AiOutlinePlus />
+                            </button>
+                          </div>
 
-                        <span>
-                          {totalItem.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          })}
-                        </span>
-                        <span>Qtd disponível: {stock}</span>
-                      </div>
+                          <span>
+                            {totalItem.toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                          </span>
+                          <span>Qtd disponível: {stock}</span>
+                        </div>
+                      )}
                     </CartInfoProduct>
                   </CartDivProductsContent>
                 );

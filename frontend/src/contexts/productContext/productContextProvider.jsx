@@ -153,6 +153,13 @@ const ProductProvider = ({ children }) => {
         const validItems = updatedItems.filter((item) => item !== null);
 
         if (hasChanges || validItems.length !== currentCart.length) {
+          if (validItems.length < currentCart.length) {
+            toast.warning(
+              "Alguns itens foram removidos pois não existem mais na loja.",
+            );
+          } else if (hasChanges) {
+            toast.info("O estoque de alguns itens mudou.");
+          }
           setCart(validItems);
           if (user) debouncedReplace(validItems);
         }
