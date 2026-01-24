@@ -1,5 +1,13 @@
 import styled from "styled-components";
 
+export const DashboardContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+`;
+
 export const SectionDashboard = styled.section`
   display: flex;
   flex: 1;
@@ -8,6 +16,92 @@ export const SectionDashboard = styled.section`
 
   @media (max-width: 980px) {
     flex-direction: column;
+  }
+`;
+
+export const HeaderComponent = styled.header`
+  width: 100%;
+  height: 80px;
+  margin: 0 auto;
+  border-bottom: 1px solid #e3e3e3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  user-select: none;
+  background-color: #fff;
+  z-index: 1100;
+  position: sticky;
+  top: 0;
+
+  @media (max-width: 768px) {
+    padding: 10px 15px;
+    gap: 8px;
+  }
+
+  .logoContent {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+
+      @media (max-width: 480px) {
+        width: 45px;
+        height: 45px;
+      }
+    }
+  }
+
+  .backShop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    margin-left: auto;
+
+    &:hover {
+      color: #000;
+      transform: translateX(-3px);
+    }
+
+    @media (max-width: 480px) {
+      font-size: 0.85rem;
+      gap: 5px;
+
+      span {
+        display: none;
+      }
+    }
+  }
+`;
+
+export const ContainerHamburger = styled.div`
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 101;
+
+  svg {
+    font-size: 1.8rem;
+    color: #333;
+  }
+
+  @media (max-width: 980px) {
+    display: flex;
+    padding-left: 15px;
   }
 `;
 
@@ -20,146 +114,6 @@ export const ContentWrapper = styled.main`
 
   @media (max-width: 980px) {
     width: 100%;
-    padding: 10px;
-  }
-`;
-
-export const ContainerHamburger = styled.div`
-  position: relative;
-  z-index: 1;
-  display: none;
-
-  > svg {
-    z-index: 100;
-    color: #000;
-    height: 30px;
-    height: 30px;
-    font-size: 1.7rem;
-    cursor: pointer;
-  }
-
-  @media (max-width: 980px) {
-    display: flex;
-  }
-`;
-
-export const DashboardContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-`;
-
-export const HeaderComponent = styled.header`
-  width: 100%;
-  height: 100px;
-  margin: 0 auto;
-  border-bottom: 1px solid #e3e3e3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  user-select: none;
-  background-color: #fff;
-  z-index: 1100;
-  flex-shrink: 0;
-  z-index: 100;
-
-  .logoContent {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-
-    img {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-    }
-
-    .logo-name {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-  }
-
-  .nav-menu {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-
-    .icon {
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-
-    .dropDownAccount {
-      top: 3em;
-      right: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 150px;
-      height: 100px;
-      box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-      z-index: 100;
-      transition: all 0.3s ease;
-      background-color: #fff;
-
-      &::before {
-        content: "";
-        display: block;
-        position: absolute;
-        top: -8px;
-        right: 15px;
-        border-bottom: 8px solid pink;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-
-        @media (max-width: 768px) {
-          right: 40px;
-        }
-      }
-
-      button {
-        width: 90%;
-        background-color: #fff;
-        border: 1px solid pink;
-        color: pink;
-        padding: 5px 7px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 0.9rem;
-      }
-
-      .signUp {
-        border-top: 1px solid #e3e3e3;
-        width: 90%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2px;
-
-        p {
-          margin-top: 5px;
-          font-size: 0.9rem;
-        }
-
-        span {
-          font-size: 0.75rem;
-        }
-      }
-    }
-  }
-
-  @media (max-width: 1000px) {
-    .logo-name {
-      display: none;
-    }
+    padding: 15px;
   }
 `;

@@ -7,7 +7,7 @@ import { FaWhatsapp, FaInstagram } from "react-icons/fa";
 const FooterContainer = styled.footer`
   background-color: #f8f9fa;
   padding: 40px 20px;
-  margin-top: 50px;
+  //margin-top: 50px;
   border-top: 1px solid #e9ecef;
 
   @media (max-width: 768px) {

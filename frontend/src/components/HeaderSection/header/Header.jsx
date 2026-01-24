@@ -162,7 +162,7 @@ function Header() {
 
           {user && user.role === "admin" && (
             <AdminButton onClick={() => navigate("/dashboard")}>
-              Painel Adm
+              Painel Admin
             </AdminButton>
           )}
         </div>

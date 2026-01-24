@@ -2,7 +2,7 @@ import styled, { keyframes } from "styled-components";
 
 export const HeaderComponent = styled.header`
   width: 100%;
-  height: 100px;
+  height: 80px;
   margin: 0 auto;
   border-bottom: 1px solid #e3e3e3;
   display: flex;
@@ -15,33 +15,77 @@ export const HeaderComponent = styled.header`
   position: sticky;
   top: 0;
 
+  @media (max-width: 768px) {
+    padding: 10px 15px;
+    gap: 8px;
+  }
+
   .logoContent {
     display: flex;
     align-items: center;
     gap: 5px;
     cursor: pointer;
+    flex-shrink: 0;
 
     img {
-      width: 70px;
-      height: 70px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
+      object-fit: cover;
+
+      @media (max-width: 480px) {
+        width: 45px;
+        height: 45px;
+      }
     }
   }
 
   .nav-menu {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     position: relative;
+    flex-shrink: 0;
+
+    @media (max-width: 480px) {
+      gap: 10px;
+    }
 
     .icon {
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       cursor: pointer;
+      color: #82858b;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #666;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1.3rem;
+      }
+    }
+
+    .dropDownAccount,
+    .dropDownLogout {
+      top: 3em;
+      right: -10px;
+      width: 200px;
+
+      @media (max-width: 480px) {
+        right: -5px;
+        width: 160px;
+      }
+
+      &::before {
+        right: 25px;
+        @media (max-width: 480px) {
+          right: 18px;
+        }
+      }
     }
 
     .dropDownAccount {
-      top: 3em;
-      right: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -117,8 +161,6 @@ export const HeaderComponent = styled.header`
     }
 
     .dropDownLogout {
-      top: 3em;
-      right: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -229,15 +271,14 @@ export const AdminButton = styled.button`
   cursor: pointer;
   font-size: 0.9rem;
   transition: background 0.2s;
+  white-space: nowrap;
 
   &:hover {
     background-color: #666;
   }
 
-  @media (max-width: 768px) {
-    padding: 6px 8px;
-    font-size: 0.7rem;
-    margin-right: 5px;
+  @media (max-width: 900px) {
+    display: none;
   }
 `;
 

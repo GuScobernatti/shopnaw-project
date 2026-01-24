@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
 import Overlay from "../../components/Overlay/Overlay";
+import { FaArrowLeft } from "react-icons/fa";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -31,6 +32,12 @@ function Dashboard() {
         <div className="logoContent" onClick={() => navigate("/dashboard")}>
           <img src={LogoShopnaw} alt="Logo-Shopnaw" />
         </div>
+
+        <span className="backShop" onClick={() => navigate("/site")}>
+          {" "}
+          <FaArrowLeft /> Volar para loja
+        </span>
+
         <ContainerHamburger>
           {menuOpen && (
             <Overlay menuOpen={menuOpen} setMenuOpen={setMenuOpen} />

@@ -6,23 +6,27 @@ export const CartDiv = styled.div`
   height: 100%;
   right: 0px;
   top: 0px;
-  width: 70%;
-  min-width: 400px;
+  width: 100%;
+  max-width: 400px;
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
   transform: ${({ isCartOpen }) =>
     isCartOpen ? "translateX(0)" : "translateX(100%)"};
   opacity: ${({ isCartOpen }) => (isCartOpen ? "1" : "0")};
   transition: all 0.4s ease-in-out;
 
   @media (min-width: 768px) {
-    width: 30%;
+    width: 400px;
   }
 `;
 
 export const CartHeader = styled.section`
   margin: 0 auto;
-  width: 90%;
+  width: 100%;
+  padding: 0 20px;
   height: 60px;
+  min-height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,22 +38,20 @@ export const CartHeader = styled.section`
     width: 30px;
     height: 30px;
     font-size: 1.7rem;
-
     cursor: pointer;
   }
 `;
 
 export const CartHeaderTitle = styled.h2`
   text-transform: uppercase;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
+  font-weight: 600;
 `;
 
 export const CartProductsSection = styled.section`
-  width: 90%;
-  height: 550px;
-  margin: 20px auto 10px;
-  padding: 10px;
-  overflow: auto;
+  width: 100%;
+  flex: 1;
+  padding: 10px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -58,18 +60,18 @@ export const CartProductsSection = styled.section`
 
 export const CartProductCard = styled.div`
   width: 100%;
-  height: auto;
   display: flex;
-  gap: 5px;
+  gap: 10px;
   cursor: pointer;
   border-bottom: 1px solid #e3e3e3;
-  padding: 10px;
+  padding: 10px 0;
 
   img {
-    height: 90px;
+    height: 80px;
     width: 70px;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: 8px;
+    flex-shrink: 0;
   }
 `;
 
@@ -77,68 +79,81 @@ export const ShirtInfoCart = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 3px;
-  width: 70%;
   flex: 1;
-  padding: 5px;
   font-size: 0.9rem;
+  overflow: hidden;
 
   span:nth-child(1) {
-    word-wrap: nowrap;
+    font-weight: 600;
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 `;
 
 export const CartFooter = styled.section`
-  width: 90%;
-  height: auto;
-  margin: 10px auto 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
+  width: 100%;
+  padding: 20px;
+  border-top: 1px solid #e3e3e3;
+  background-color: #fff;
+  margin-top: auto;
 
   p {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    margin-bottom: 15px;
   }
 
   button {
-    padding: 8px;
+    padding: 12px;
     width: 100%;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    font-weight: 600;
     border: none;
     background-color: #82858b;
     color: #fff;
-    border-radius: 0.8em;
+    border-radius: 8px;
     cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background-color: #666;
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
   }
 `;
 
 export const DivEmptyCart = styled.div`
-  margin: 0 auto;
-  width: 90%;
-  height: 570px;
+  width: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 15px;
+  padding: 20px;
+  text-align: center;
 
   .emptyCartIcon {
-    font-size: 2.5rem;
-    color: #000;
+    font-size: 3rem;
+    color: #ddd;
   }
 
   .emptyCartText {
-    font-size: 1.5rem;
-    color: #000;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
   }
 
   .emptyCartSpan {
     font-size: 0.9rem;
-    color: #5c5c5c;
-    text-align: center;
+    color: #888;
+    line-height: 1.4;
   }
 `;

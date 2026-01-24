@@ -33,7 +33,7 @@ class PaymentController {
       for (const item of items) {
         const { rows } = await client.query(
           "SELECT quantity, price, name, category, product_id, image, size FROM products WHERE product_id = $1",
-          [item.product_id]
+          [item.product_id],
         );
 
         if (rows.length === 0) {
@@ -47,7 +47,7 @@ class PaymentController {
 
         if (stockAtual < qtdSolicitada) {
           throw new Error(
-            `Estoque insuficiente para "${productDb.name}". Restam ${stockAtual} unidades.`
+            `Estoque insuficiente para "${productDb.name}". Restam ${stockAtual} unidades.`,
           );
         }
 
@@ -133,6 +133,12 @@ class PaymentController {
         },
       };
 
+      if (finalPaymentMethodId === "pix") {
+        const date = new Date();
+        date.setMinutes(date.getMinutes() + 30);
+        paymentData.date_of_expiration = date.toISOString();
+      }
+
       if (formData.issuerId || formData.issuer_id) {
         paymentData.issuer_id = formData.issuerId || formData.issuer_id;
       }
@@ -170,21 +176,21 @@ class PaymentController {
               `UPDATE products 
                        SET quantity = GREATEST(0, quantity::integer - $1)
                        WHERE product_id = $2`,
-              [Number(item.quantity), item.product_id]
+              [Number(item.quantity), item.product_id],
             );
           }
 
           if (userId) {
             const cartRes = await client.query(
               "SELECT cart_id FROM carts WHERE user_id = $1::uuid LIMIT 1",
-              [userId]
+              [userId],
             );
 
             if (cartRes.rows.length > 0) {
               const cartId = cartRes.rows[0].cart_id;
               await client.query(
                 "DELETE FROM cart_items WHERE cart_id = $1::uuid",
-                [cartId]
+                [cartId],
               );
             }
           }
@@ -224,7 +230,7 @@ class PaymentController {
         const currentStatus = mpPayment.status;
 
         console.log(
-          `🔔 Webhook recebido: Pagamento ${paymentId} está ${currentStatus}`
+          `🔔 Webhook recebido: Pagamento ${paymentId} está ${currentStatus}`,
         );
 
         const order = await OrderRepository.getOrderByPaymentId(paymentId);
@@ -243,7 +249,7 @@ class PaymentController {
 
             if (wasActive && isNowCancelled) {
               console.log(
-                `🔄 Devolvendo estoque para o pedido ${order.order_id}...`
+                `🔄 Devolvendo estoque para o pedido ${order.order_id}...`,
               );
 
               let items = order.items;
@@ -262,7 +268,7 @@ class PaymentController {
                     `UPDATE products 
                              SET quantity = quantity::integer + $1 
                              WHERE product_id = $2`,
-                    [Number(item.quantity), item.product_id]
+                    [Number(item.quantity), item.product_id],
                   );
                 }
                 console.log("✅ Estoque devolvido com sucesso.");
@@ -271,18 +277,18 @@ class PaymentController {
 
             await OrderRepository.updateOrderStatus(
               order.order_id,
-              currentStatus
+              currentStatus,
             );
 
             await sendStatusEmail(order, currentStatus);
 
             console.log(
-              `✅ Pedido ${order.order_id} atualizado para: ${currentStatus}`
+              `✅ Pedido ${order.order_id} atualizado para: ${currentStatus}`,
             );
           }
         } else {
           console.warn(
-            `⚠️ Pedido não encontrado para o pagamento MP: ${paymentId}`
+            `⚠️ Pedido não encontrado para o pagamento MP: ${paymentId}`,
           );
         }
       }

@@ -155,6 +155,23 @@ function Sidebar({ isOpen, active }) {
       </Content>
 
       <FooterMenuAside>
+        {user && user.role === "admin" && (
+          <AccountButton
+            onClick={() => {
+              navigate("/dashboard");
+              active(false);
+            }}
+            style={{
+              marginBottom: "10px",
+              backgroundColor: "#333",
+              color: "#fff",
+              border: "none",
+            }}
+          >
+            <span>Painel Admin</span>
+          </AccountButton>
+        )}
+
         {user == null ? (
           <AccountButton onClick={() => navigate("/account/login")}>
             <CgProfile />

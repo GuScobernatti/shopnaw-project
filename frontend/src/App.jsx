@@ -23,7 +23,7 @@ function App() {
         <AnnouncementBar />
         <Header />
 
-        <main style={{ flex: 1 }}>{isLoading ? <Loading /> : <Outlet />}</main>
+        {isLoading ? <Loading /> : <Outlet />}
 
         <Footer />
         <FloatingWhatsApp />

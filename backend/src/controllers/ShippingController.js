@@ -9,10 +9,14 @@ class ShippingController {
         return res.status(400).json({ error: "CEP é obrigatório" });
       }
 
+      const totalQuantity = items.reduce((acc, item) => {
+        return acc + Number(item.quantity);
+      }, 0);
+
       const cleanZip = zipCode.replace(/\D/g, "");
       const LOCAL_PREFIXES = ["350"];
       const isLocal = LOCAL_PREFIXES.some((prefix) =>
-        cleanZip.startsWith(prefix)
+        cleanZip.startsWith(prefix),
       );
 
       let shippingOptions = [];
@@ -20,7 +24,7 @@ class ShippingController {
         shippingOptions.push({
           id: 1,
           name: "Entrega Local",
-          price: 0,
+          price: totalQuantity >= 3 ? 0 : 5,
           days: 1,
           company_picture:
             "https://cdn-icons-png.flaticon.com/512/7541/7541900.png",
@@ -80,7 +84,7 @@ class ShippingController {
               Authorization: `Bearer ${process.env.MELHOR_ENVIO_TOKEN}`,
               "User-Agent": "Shopnaw/1.0 (fakagula@gmail.com)",
             },
-          }
+          },
         );
 
         const apiOptions = response.data
