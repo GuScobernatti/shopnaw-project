@@ -19,6 +19,8 @@ const ShippingController = require("./controllers/ShippingController");
 const app = express();
 const port = process.env.PORT || 3333;
 
+app.set("trust proxy", 1);
+
 // Segurança com headers HTTP
 app.use(
   helmet({
@@ -28,10 +30,22 @@ app.use(
   }),
 );
 
+const allowedOrigins = [
+  "https://shopnaw-web.onrender.com",
+  "http://localhost:5173",
+  process.env.CORS_ORIGIN,
+].filter(Boolean);
+
 // Liberação de origem controlada
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "*", // EX: https://meu-frontend.com
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "X-CSRF-Token", "Authorization", "Accept"],
     credentials: true,
@@ -68,15 +82,6 @@ app.get("/csrf-token", (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 
-// // Limite de requisições por IP
-// const limiter = rateLimit({
-//   windowMs: +process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000, // 15 minutos
-//   max: +process.env.RATE_LIMIT_MAX || 100,
-//   message: "Muitas requisições, tente novamente mais tarde.",
-// });
-
-// app.use(limiter);
-
 // Rotas protegidas
 app.use("/promotions", promotionsRoutes);
 app.use("/cart", cartRoutes);
@@ -89,6 +94,7 @@ app.use(addressRoutes);
 // Tratamento de erros gerais e CSRF
 app.use((err, req, res, next) => {
   if (err.code === "EBADCSRFTOKEN") {
+    console.warn("Bloqueio CSRF detectado. Headers:", req.headers.origin);
     return res
       .status(403)
       .json({ message: "Formulário expirado ou inválido. Tente novamente." });
