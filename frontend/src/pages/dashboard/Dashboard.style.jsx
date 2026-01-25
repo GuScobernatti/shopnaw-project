@@ -105,7 +105,7 @@ export const ContainerHamburger = styled.div`
   }
 `;
 
-export const ContentWrapper = styled.main`
+export const ContentWrapper = styled.section`
   flex: 1;
   padding: 20px;
   background-color: #f9f9f9;
