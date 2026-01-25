@@ -190,7 +190,7 @@ function Cart() {
               }}
               className="dropDownLogout"
             >
-              <span>Olá, {user.name}!</span>
+              <span>Olá, {user.name.split(" ")[0]}!</span>
               <button id="logoutBtn" onClick={handleLogout}>
                 Sair
               </button>
