@@ -30,6 +30,18 @@ function Sidebar({ isOpen, active }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     const fetchOptions = async () => {
       try {
         const [catRes, sizeRes] = await Promise.all([

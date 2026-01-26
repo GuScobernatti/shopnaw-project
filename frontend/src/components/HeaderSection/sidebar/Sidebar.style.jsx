@@ -6,7 +6,8 @@ export const ContainerSidebar = styled.div`
   top: 0;
   left: 0;
   width: 70%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   z-index: 1000;
   display: flex;
   flex-direction: column;

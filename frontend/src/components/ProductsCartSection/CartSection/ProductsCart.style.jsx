@@ -3,7 +3,8 @@ import styled from "styled-components";
 export const CartDiv = styled.div`
   background-color: #fff;
   position: fixed;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   right: 0px;
   top: 0px;
   width: 100%;

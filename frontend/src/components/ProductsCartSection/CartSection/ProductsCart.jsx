@@ -12,7 +12,7 @@ import {
 } from "./ProductsCart.style";
 import { GoTrash } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import productContext from "../../../contexts/productContext/createProductContext";
 import { MdRemoveShoppingCart } from "react-icons/md";
 import { API_BASE } from "../../../api";
@@ -22,6 +22,18 @@ function ProductsCart({ isCartOpen, setIsCartOpen }) {
   const navigate = useNavigate();
   const { cart, removeFromCart } = useContext(productContext);
   const { applyOffers } = useContext(promotionsContext);
+
+  useEffect(() => {
+    if (isCartOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isCartOpen]);
 
   const total = useMemo(() => {
     return cart.reduce((acc, p) => {

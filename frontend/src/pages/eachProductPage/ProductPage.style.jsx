@@ -94,6 +94,10 @@ export const InfoProductText = styled.div`
       justify-content: space-between;
     }
 
+    @media (max-width: 768px) {
+      align-items: flex-start;
+    }
+
     span {
       font-size: 1.8rem;
       font-weight: 700;
@@ -121,6 +125,10 @@ export const InfoProductText = styled.div`
       justify-content: center;
       gap: 12px;
       transition: all 0.3s;
+
+      @media (max-width: 768px) {
+        align-self: center;
+      }
     }
 
     button:hover {
