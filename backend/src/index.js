@@ -31,6 +31,8 @@ app.use(
 );
 
 const allowedOrigins = [
+  "https://www.shopnaw.com.br",
+  "https://shopnaw.com.br",
   "https://shopnaw-web.onrender.com",
   "http://localhost:5173",
   process.env.CORS_ORIGIN,

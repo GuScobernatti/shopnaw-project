@@ -42,7 +42,7 @@ class LoginRepository {
 
       try {
         await resend.emails.send({
-          from: "Shopnaw <onboarding@resend.dev>", // <nao-responda@shopnaw.com>
+          from: "Shopnaw Segurança <nao-responda@shopnaw.com.br>",
           to: [email],
           subject: "Confirme seu email - Shopnaw",
           html: `
@@ -447,7 +447,7 @@ class LoginRepository {
 
       try {
         await resend.emails.send({
-          from: '"Shopnaw Suporte" <onboarding@resend.dev>', // <nao-responda@shopnaw.com>
+          from: "Shopnaw Segurança <nao-responda@shopnaw.com.br>",
           to: [email],
           subject: "Recuperação de Senha - Shopnaw",
           html: `

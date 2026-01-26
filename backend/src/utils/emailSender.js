@@ -49,7 +49,7 @@ async function sendStatusEmail(order, newStatus, trackingCode) {
 
     try {
       await resend.emails.send({
-        from: "Shopnaw <onboarding@resend.dev>", // <nao-responda@shopnaw.com>
+        from: "Shopnaw Pedidos <pedidos@shopnaw.com.br>",
         to: [email],
         subject: subject,
         html: `

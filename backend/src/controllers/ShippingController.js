@@ -82,7 +82,7 @@ class ShippingController {
               Accept: "application/json",
               "Content-Type": "application/json",
               Authorization: `Bearer ${process.env.MELHOR_ENVIO_TOKEN}`,
-              "User-Agent": "Shopnaw/1.0 (fakagula@gmail.com)",
+              "User-Agent": "Shopnaw/1.0 (shopnaw04@gmail.com)",
             },
           },
         );
