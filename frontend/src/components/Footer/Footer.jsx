@@ -156,9 +156,7 @@ function Footer() {
         <Column>
           <h3>Contato</h3>
           {whatsapp_number && <p>WhatsApp: {whatsapp_number}</p>}
-          <p>
-            Email: suporte@{site_title?.toLowerCase().replace(/\s/g, "")}.com.br
-          </p>
+          <p>Email: shopnaw04@gmail.com</p>
         </Column>
       </Content>
 
