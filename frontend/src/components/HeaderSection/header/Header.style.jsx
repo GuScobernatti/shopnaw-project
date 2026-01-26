@@ -48,7 +48,7 @@ export const HeaderComponent = styled.header`
     flex-shrink: 0;
 
     @media (max-width: 480px) {
-      gap: 10px;
+      gap: 8px;
     }
 
     .icon {
