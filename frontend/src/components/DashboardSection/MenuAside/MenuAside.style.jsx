@@ -4,6 +4,7 @@ export const Aside = styled.aside`
   width: 40%;
   max-width: 300px;
   height: 100vh;
+  height: 100dvh;
   padding: 10px;
   display: flex;
   justify-content: center;

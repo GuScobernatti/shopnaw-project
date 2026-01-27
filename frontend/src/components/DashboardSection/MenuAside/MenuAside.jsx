@@ -11,8 +11,21 @@ import {
   BadgeDollarSign,
 } from "lucide-react";
 import PropTypes from "prop-types";
+import { useEffect } from "react";
 
 function MenuAside({ isOpen }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   return (
     <Aside isOpen={isOpen}>
       <ContainerSection>
