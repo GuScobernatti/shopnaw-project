@@ -121,6 +121,12 @@ const ProductProvider = ({ children }) => {
               const res = await fetch(
                 `${API_BASE}/dashboard/${item.product_id}`,
               );
+
+              if (res.status === 404) {
+                hasChanges = true;
+                return null;
+              }
+
               if (res.ok) {
                 const data = await res.json();
 
