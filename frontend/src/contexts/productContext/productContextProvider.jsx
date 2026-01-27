@@ -194,13 +194,15 @@ const ProductProvider = ({ children }) => {
       if (localItems.length > 0) {
         setCart(localItems);
         replaceOnServer(localItems);
+        refreshCartStock(localItems);
       } else {
         setCart(serverItems);
+        refreshCartStock(serverItems);
       }
     } catch (err) {
       console.error("fetchCart error:", err);
     }
-  }, [doFetch, user, replaceOnServer]);
+  }, [doFetch, user, replaceOnServer, refreshCartStock]);
 
   useEffect(() => {
     if (!initialized) return;
@@ -210,6 +212,7 @@ const ProductProvider = ({ children }) => {
     } else {
       const local = JSON.parse(localStorage.getItem("cart") || "[]");
       setCart(local);
+      refreshCartStock(local);
     }
 
     const onCartMerged = (e) => {
