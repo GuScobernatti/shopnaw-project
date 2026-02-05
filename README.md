@@ -70,24 +70,6 @@ O **Shopnaw Store** é uma aplicação de comércio eletrônico desenvolvida par
 
 ---
 
-### 🚀 Como rodar este projeto
-
-```bash
-# Clone este repositório
-$ git clone [https://github.com/SEU_USUARIO/shopnaw-project.git](https://github.com/SEU_USUARIO/shopnaw-project.git)
-
-# Acesse a pasta do projeto no terminal/cmd
-$ cd shopnaw-project
-
-# Instale as dependências (Front e Back)
-$ cd backend && npm install
-$ cd ../frontend && npm install
-
-# Execute a aplicação
-$ cd backend && npm start
-$ cd frontend && npm run dev
-```
-
 <a href="https://www.linkedin.com/in/gustavo-scobernatti/"> <img style="border-radius: 50%;" src="https://www.google.com/search?q=https://avatars.githubusercontent.com/u/108602635%3Fv%3D4" width="100px;" alt=""/> <br /> <sub><b>Gustavo Luiz Scobernatti de Almeida</b></sub> </a> <a href="https://www.linkedin.com/in/gustavo-scobernatti/" title="Linkedin">🚀</a>
 
 Feito por Gustavo Luiz Scobernatti de Almeida.
