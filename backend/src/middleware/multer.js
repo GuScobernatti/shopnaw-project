@@ -1,6 +1,7 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const { v2: cloudinary } = require("cloudinary");
+const { v4: uuidv4 } = require("uuid");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,7 +14,12 @@ const storage = new CloudinaryStorage({
   params: {
     folder: "shopnaw_products", // Nome da pasta no Cloudinary
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
-    public_id: (req, file) => "shopnaw_images",
+    public_id: (req, file) => {
+      const originalName = file.originalname
+        .split(".")[0]
+        .replace(/[^a-zA-Z0-9]/g, "");
+      return `${originalName}_${uuidv4()}`;
+    },
   },
 });
 
