@@ -11,15 +11,17 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: "shopnaw_products", // Nome da pasta no Cloudinary
-    allowed_formats: ["jpg", "png", "jpeg", "webp"],
-    public_id: (req, file) => {
-      const originalName = file.originalname
-        .split(".")[0]
-        .replace(/[^a-zA-Z0-9]/g, "");
-      return `${originalName}_${uuidv4()}`;
-    },
+  params: async (req, file) => {
+    const originalName = file.originalname
+      .split(".")[0]
+      .replace(/[^a-zA-Z0-9]/g, "");
+    const uniqueId = `${originalName}_${uuidv4()}`;
+
+    return {
+      folder: "shopnaw_products",
+      allowed_formats: ["jpg", "png", "jpeg", "webp"],
+      public_id: uniqueId,
+    };
   },
 });
 
