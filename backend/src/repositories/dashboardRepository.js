@@ -45,7 +45,7 @@ class DashboardRepository {
           valWidth,
           valHeight,
           valLength,
-        ]
+        ],
       );
 
       response.status(201).json({ message: "Produto criado com sucesso!" });
@@ -77,7 +77,11 @@ class DashboardRepository {
       }
 
       if (onlyOld === "true") {
-        filters.push(`timestamp < NOW() - INTERVAL '7 days'`);
+        filters.push(`timestamp < NOW() - INTERVAL '5 days'`);
+      }
+
+      if (request.query.onlyNew === "true") {
+        filters.push(`timestamp >= NOW() - INTERVAL '5 days'`);
       }
 
       const qRaw = (request.query.q || "").trim();
@@ -95,7 +99,7 @@ class DashboardRepository {
           const ilikeIdx = qIdx + 1;
 
           filters.push(
-            `(tsv @@ to_tsquery('portuguese', $${qIdx}) OR name ILIKE $${ilikeIdx})`
+            `(tsv @@ to_tsquery('portuguese', $${qIdx}) OR name ILIKE $${ilikeIdx})`,
           );
 
           rankSelect = `ts_rank_cd(tsv, to_tsquery('portuguese', $${qIdx})) AS rank`;
@@ -201,7 +205,7 @@ class DashboardRepository {
     try {
       const existing = await client.query(
         "SELECT * FROM products WHERE product_id = $1",
-        [id]
+        [id],
       );
       if (!existing.rows.length) {
         return response.status(404).json({ error: "Produto não encontrado." });
@@ -235,7 +239,7 @@ class DashboardRepository {
           valWidth,
           valHeight,
           valLength,
-        ]
+        ],
       );
 
       response.status(200).json({ message: "Produto editado com sucesso!" });
@@ -257,7 +261,7 @@ class DashboardRepository {
          weight, width, height, length
          FROM products
          WHERE product_id = $1`,
-        [id]
+        [id],
       );
 
       if (!rows.length) {

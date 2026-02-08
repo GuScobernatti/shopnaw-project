@@ -6,7 +6,7 @@ import {
   Title,
   PriceWrapper,
 } from "./NewShirtsSection.style";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../../api";
 import productContext from "../../contexts/productContext/createProductContext";
@@ -16,7 +16,7 @@ import Loading from "../Loading/Loading";
 
 function NewShirstSection() {
   const navigate = useNavigate();
-  const { dataForm, addToCart, isLoading } = useContext(productContext);
+  const { newProducts, addToCart, isNewLoading } = useContext(productContext);
   const { applyOffers } = useContext(promotionsContext);
   const [hoveredId, setHoveredId] = useState(null);
 
@@ -30,20 +30,15 @@ function NewShirstSection() {
     navigate(`/site/product/${name}/${id}`.replaceAll(" ", "-"));
   };
 
-  const recentProducts = useMemo(
-    () => dataForm.filter((p) => p.isNew),
-    [dataForm],
-  );
-
-  if (!recentProducts.length) return null;
-  if (isLoading) return <Loading />;
+  if (!newProducts || !newProducts.length) return null;
+  if (isNewLoading) return <Loading />;
 
   return (
     <NewShirtsSec id="newShirts">
       <Title>Lançamentos</Title>
 
       <ProductContainer>
-        {recentProducts.map((data) => {
+        {newProducts.map((data) => {
           const { price, discountLabel } = applyOffers(data);
           const orig = Number(data.price).toLocaleString("pt-BR", {
             style: "currency",

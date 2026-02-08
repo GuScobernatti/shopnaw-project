@@ -34,6 +34,9 @@ const ProductProvider = ({ children }) => {
   const [oldTotalPages, setOldTotalPages] = useState(1);
   const [oldLimit] = useState(10);
 
+  const [newProducts, setNewProducts] = useState([]);
+  const [isNewLoading, setIsNewLoading] = useState(true);
+
   const listControllerRef = useRef(null);
   const oldControllerRef = useRef(null);
 
@@ -270,10 +273,41 @@ const ProductProvider = ({ children }) => {
 
   useEffect(() => {
     fetchOld(oldPage);
+    fetchNew();
     return () => {
       if (oldControllerRef.current) oldControllerRef.current.abort();
     };
-  }, [fetchOld, oldPage]);
+  }, [fetchOld, oldPage, fetchNew]);
+
+  const fetchNew = useCallback(async () => {
+    setIsNewLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: "1",
+        limit: "30",
+        onlyNew: "true",
+      });
+
+      const response = await fetchDataForm(`/dashboard?${params}`, "GET");
+
+      if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+      const data = await response.json();
+      const products = data.products || [];
+
+      const now = Date.now();
+      const enriched = products.map((p) => ({
+        ...p,
+        isNew: now - new Date(p.timestamp) < 7 * 24 * 3600 * 1000,
+      }));
+
+      setNewProducts(enriched);
+    } catch (err) {
+      console.error("fetchNew error:", err);
+    } finally {
+      setIsNewLoading(false);
+    }
+  }, []);
 
   const updateProductList = useCallback(
     async (queryUrl = {}) => {
@@ -423,6 +457,8 @@ const ProductProvider = ({ children }) => {
     <productContext.Provider
       value={{
         dataForm,
+        newProducts,
+        isNewLoading,
         setDataForm,
         updateProductList,
         isLoading,
