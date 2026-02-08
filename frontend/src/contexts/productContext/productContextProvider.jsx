@@ -333,8 +333,8 @@ const ProductProvider = ({ children }) => {
         const now = Date.now();
         const enriched = products.map((p) => ({
           ...p,
-          isNew: now - new Date(p.timestamp) < 7 * 24 * 3600 * 1000,
-          isOld: now - new Date(p.timestamp) >= 7 * 24 * 3600 * 1000,
+          isNew: now - new Date(p.timestamp) < 5 * 24 * 3600 * 1000,
+          isOld: now - new Date(p.timestamp) >= 5 * 24 * 3600 * 1000,
         }));
         setTotalPages(data.totalPages ?? null);
         setTotal(data.total ?? null);
