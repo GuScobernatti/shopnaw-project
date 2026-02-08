@@ -271,14 +271,6 @@ const ProductProvider = ({ children }) => {
     [oldLimit],
   );
 
-  useEffect(() => {
-    fetchOld(oldPage);
-    fetchNew();
-    return () => {
-      if (oldControllerRef.current) oldControllerRef.current.abort();
-    };
-  }, [fetchOld, oldPage, fetchNew]);
-
   const fetchNew = useCallback(async () => {
     setIsNewLoading(true);
     try {
@@ -308,6 +300,14 @@ const ProductProvider = ({ children }) => {
       setIsNewLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchOld(oldPage);
+    fetchNew();
+    return () => {
+      if (oldControllerRef.current) oldControllerRef.current.abort();
+    };
+  }, [fetchOld, oldPage, fetchNew]);
 
   const updateProductList = useCallback(
     async (queryUrl = {}) => {
