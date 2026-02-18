@@ -7,6 +7,8 @@ import InstagramImage from "../../assets/instagram.png";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import configContext from "../../contexts/configContext/createConfigContext";
+import bannerDesktop from "../../assets/db67511c-c95b-40a4-a370-b5a307258e4b.jpg";
+import bannerMobile from "../../assets/4bd0d730-c352-48c9-aeac-f059f5fc6cdd.jpg";
 
 function Home() {
   const navigate = useNavigate();
@@ -17,9 +19,15 @@ function Home() {
   return (
     <>
       <section className="sec">
-        <div></div>
-        <div>
-          <img src={logoShopnaw} />
+        <div className="banner-img-container">
+          <picture>
+            <source media="(max-width: 700px)" srcSet={bannerMobile} />
+            <img src={bannerDesktop} alt="Banner da Loja Shop Naw" />
+          </picture>
+        </div>
+
+        <div className="logo-container">
+          <img src={logoShopnaw} alt="Logo Shop Naw" />
         </div>
       </section>
 

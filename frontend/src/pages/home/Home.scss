@@ -1,29 +1,28 @@
 .sec {
   width: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  position: relative;
 
-  div:first-child {
-    background-image: url("../../assets/bannerdesktop.jpg");
+  .banner-img-container {
     width: 100%;
-    height: 400px;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-
-    @media (max-width: 700px) {
-      background-image: url("../../assets/introduction-image.jpg");
-    }
+    //height: 400px;
 
     @media (max-width: 480px) {
       height: 180px;
     }
+
+    img {
+      width: 100%;
+      height: 100%;
+      //object-fit: cover;
+      display: block;
+      object-position: center;
+    }
   }
 
-  div:last-child {
+  .logo-container {
     width: 140px;
     height: 140px;
     border-radius: 50%;
