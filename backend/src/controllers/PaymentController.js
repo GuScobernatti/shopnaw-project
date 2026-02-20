@@ -3,7 +3,10 @@ const OrderRepository = require("../repositories/ordersRepository");
 const pool = require("../pgPool");
 const PromotionsRepository = require("../repositories/promotionsRepository");
 const promotionsRepo = new PromotionsRepository();
-const sendStatusEmail = require("../utils/emailSender");
+const {
+  sendStatusEmail,
+  sendAdminNewOrderEmail,
+} = require("../utils/emailSender");
 
 class PaymentController {
   async createPayment(req, res) {
@@ -158,6 +161,8 @@ class PaymentController {
         shippingCost: Number(shippingCost || 0),
         shippingMethod: shippingMethod || "Retirada",
       });
+
+      await sendAdminNewOrderEmail(newOrder);
 
       if (mpStatus) {
         await OrderRepository.updateOrderStatus(newOrder.order_id, mpStatus);

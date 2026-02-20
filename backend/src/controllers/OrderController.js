@@ -1,6 +1,6 @@
 const OrderRepository = require("../repositories/ordersRepository");
 const pool = require("../pgPool");
-const sendStatusEmail = require("../utils/emailSender");
+const { sendStatusEmail } = require("../utils/emailSender");
 
 class OrderController {
   async getUserOrders(req, res) {
@@ -64,7 +64,7 @@ class OrderController {
               `UPDATE products 
                SET quantity = quantity::integer + $1 
                WHERE product_id = $2`,
-              [Number(item.quantity), item.product_id]
+              [Number(item.quantity), item.product_id],
             );
           }
         }
@@ -75,7 +75,7 @@ class OrderController {
               `UPDATE products 
                SET quantity = GREATEST(0, quantity::integer - $1) 
                WHERE product_id = $2`,
-              [Number(item.quantity), item.product_id]
+              [Number(item.quantity), item.product_id],
             );
           }
         }
@@ -84,7 +84,7 @@ class OrderController {
       const updated = await OrderRepository.updateOrderStatus(
         id,
         newStatus,
-        trackingCode
+        trackingCode,
       );
 
       await sendStatusEmail(order, newStatus, trackingCode);

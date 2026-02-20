@@ -93,4 +93,36 @@ async function sendStatusEmail(order, newStatus, trackingCode) {
   }
 }
 
-module.exports = sendStatusEmail;
+async function sendAdminNewOrderEmail(order) {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const dashboardUrl = `${process.env.CORS_ORIGIN}/dashboard/orders`;
+
+    const subject = `🎉 Novo Pedido Recebido! #${order.order_id.slice(0, 8)}`;
+
+    await resend.emails.send({
+      from: "Shopnaw Sistema <pedidos@shopnaw.com.br>",
+      to: [adminEmail],
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <h2 style="color: #2e7d32;">Venda Realizada! 🎉</h2>
+          <p>Você tem um novo pedido aguardando processamento na Shopnaw.</p>
+          <hr/>
+          <p><strong>ID do Pedido:</strong> ${order.order_id}</p>
+          <p><strong>Valor Total:</strong> R$ ${Number(order.total_amount).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
+          <p><strong>Método de Pagamento:</strong> ${order.payment_method.toUpperCase()}</p>
+          <br/>
+          <a href="${dashboardUrl}" style="background-color: #000; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+            Acessar Painel de Pedidos
+          </a>
+        </div>
+      `,
+    });
+    console.log(`📧 Email de notificação enviado para o Admin (${adminEmail})`);
+  } catch (err) {
+    console.error("Erro na API Resend (Admin):", err);
+  }
+}
+
+module.exports = { sendStatusEmail, sendAdminNewOrderEmail };
