@@ -5,3 +5,15 @@ uploads
 .DS_Store
 estrutura.sql
 .idea
+addresses.csv
+cart_items.csv
+carts.csv
+password_resets.csv
+pedidos.csv
+product_options.csv
+products.csv
+promotions.csv
+refresh_tokens.csv
+store_config.csv
+usuarios.csv
+*.csv*.csv
